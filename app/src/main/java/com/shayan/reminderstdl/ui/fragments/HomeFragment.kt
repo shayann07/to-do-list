@@ -1,0 +1,68 @@
+package com.shayan.reminderstdl.ui.fragments
+
+import android.content.SharedPreferences
+import android.os.Bundle
+import android.view.MenuItem
+import android.view.View
+import android.widget.LinearLayout
+import android.widget.PopupMenu
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import com.shayan.reminderstdl.R
+import com.shayan.reminderstdl.databinding.FragmentHomeBinding
+import kotlin.reflect.KMutableProperty0
+
+class HomeFragment : Fragment() {
+
+    private lateinit var binding: FragmentHomeBinding
+    private lateinit var sharedPreferences: SharedPreferences
+    private var isArrowDownICloud = true
+    private var isArrowDownOutlook = true
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding = FragmentHomeBinding.bind(view)
+        sharedPreferences =
+            requireActivity().getSharedPreferences("PrefsDatabase", AppCompatActivity.MODE_PRIVATE)
+
+        // Set up menu for log-out functionality
+        binding.menuImageView.setOnClickListener { showPopupMenu() }
+
+        // Toggle visibility for containers on click
+        binding.textviewICloud.setOnClickListener {
+            toggleVisibility(binding.iCloudContainer, ::isArrowDownICloud)
+        }
+        binding.textviewOutlook.setOnClickListener {
+            toggleVisibility(binding.outlookContainer, ::isArrowDownOutlook)
+        }
+    }
+
+    private fun showPopupMenu() {
+        PopupMenu(requireContext(), binding.menuImageView).apply {
+            menuInflater.inflate(R.menu.menu_dropdown_toolbar, menu)
+            setOnMenuItemClickListener { handleMenuItemClick(it) }
+            show()
+        }
+    }
+
+    private fun handleMenuItemClick(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.log_out -> {
+                sharedPreferences.edit().clear().apply()
+                // Optionally navigate to login screen if necessary
+                // startActivity(Intent(requireActivity(), MainActivityLogin::class.java))
+                requireActivity().finish() // Close the activity
+                true
+            }
+
+            else -> false
+        }
+    }
+
+    private fun toggleVisibility(container: LinearLayout, arrowState: KMutableProperty0<Boolean>) {
+        container.visibility = if (arrowState.get()) View.GONE else View.VISIBLE
+        arrowState.set(!arrowState.get())
+    }
+}

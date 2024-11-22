@@ -1,0 +1,27 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.RemindersTDL" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+
+    <!-- Define the default app theme -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light">
+        <item name="actionOverflowMenuStyle">@style/OverflowMenu</item>
+    </style>
+
+    <style name="OverflowMenu" parent="Widget.AppCompat.PopupMenu.Overflow">
+        <item name="overlapAnchor">false</item>
+        <item name="android:overlapAnchor">false</item>
+    </style>
+
+    <style name="SearchViewHintStyle">
+        <item name="android:textColorHint">@color/white</item>
+    </style>
+
+
+
+    <style name="Theme.RemindersTDL" parent="Base.Theme.RemindersTDL" />
+</resources>

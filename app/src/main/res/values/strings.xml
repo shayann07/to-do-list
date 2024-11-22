@@ -1,0 +1,42 @@
+<resources>
+    <string name="app_name">Reminders</string>
+    <string name="edit_lists">Edit Lists</string>
+    <string name="templates">Templates</string>
+    <string name="search">Search</string>
+    <string name="_0">0</string>
+    <string name="today">Today</string>
+    <string name="schedule">Schedule</string>
+    <string name="all">All</string>
+    <string name="flagged">Flagged</string>
+    <string name="completed">Completed</string>
+    <string name="icloud">iCloud</string>
+    <string name="outlook">Outlook</string>
+    <string name="tasks">Tasks</string>
+    <string name="new_reminder">New Reminder</string>
+    <string name="add_list">Add List</string>
+    <string name="dropdown_menu">Dropdown Menu</string>
+    <string name="dont_have_an_account">Don\'t have an account?</string>
+    <string name="get_started">Get Started</string>
+    <string name="welcome_back">Welcome Back</string>
+    <string name="enter_your_details_below">Enter your details below</string>
+    <string name="email_or_phone_number">Email or phone number</string>
+    <string name="password">Password</string>
+    <string name="sign_in">Sign In</string>
+    <string name="forget_your_password">Forget your password?</string>
+    <string name="or_sign_in_with">Or sign in with</string>
+    <string name="google">Google</string>
+    <string name="facebook">Facebook</string>
+    <string name="lists">Lists</string>
+    <string name="name">Name</string>
+    <string name="email">Email</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="free_forever_no_credit_card_needed">Free forever. No credit card needed</string>
+    <string name="already_have_an_account">Already have an account?</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="or_sign_up_with">Or sign up with</string>
+    <string name="first_name">first name</string>
+    <string name="last_name">last name</string>
+    <string name="phone_number">phone number</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
