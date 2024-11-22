@@ -1,81 +1,93 @@
 package com.shayan.reminderstdl.ui.fragments
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
 import com.shayan.reminderstdl.R
 import com.shayan.reminderstdl.databinding.FragmentRegisterBinding
 import com.shayan.reminderstdl.ui.viewmodels.AuthViewModel
 
+class RegisterFragment : Fragment() {
 
-class RegisterFragment : Fragment(R.layout.fragment_register) {
-
-    private lateinit var binding: FragmentRegisterBinding
+    private var _binding: FragmentRegisterBinding? = null
+    private val binding get() = _binding!!
     private val authViewModel: AuthViewModel by activityViewModels()
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentRegisterBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding = FragmentRegisterBinding.bind(view)
 
-        setClickListeners()
-    }
+        binding.backOption.setOnClickListener {
+            findNavController().navigateUp()
+        }
 
-    private fun setClickListeners() {
-        binding.apply {
-            // Navigate back to the previous fragment
-            backOption.setOnClickListener { findNavController().navigateUp() }
+        binding.loginScreen.setOnClickListener {
+            findNavController().navigate(R.id.registerFragment_to_loginFragment)
+        }
 
-            // Handle the signup button click
-            signupButton.setOnClickListener {
-                val firstName = firstName.text.toString().trim()
-                val lastName = lastName.text.toString().trim()
-                val phone = phoneEditText.text.toString().trim()
-                val pass = passwordEditText.text.toString()
-                val cPass = confirmPasswordEditText.text.toString()
+        binding.signupButton.setOnClickListener {
+            val firstName = binding.firstName.text.toString().trim()
+            val lastName = binding.lastName.text.toString().trim()
+            val phone = binding.phoneEditText.text.toString().trim()
+            val password = binding.passwordEditText.text.toString().trim()
+            val confirmPassword = binding.confirmPasswordEditText.text.toString().trim()
 
-                if (validateInput(firstName, lastName, phone, pass, cPass)) {
-                    authViewModel.register(firstName, lastName, phone, pass, cPass, onSuccess = {
-                        Toast.makeText(
-                            requireContext(), "User registered successfully", Toast.LENGTH_SHORT
+            if (validateInput(firstName, lastName, phone, password, confirmPassword)) {
+                authViewModel.register(firstName,
+                    lastName,
+                    phone,
+                    password,
+                    confirmPassword,
+                    onSuccess = {
+                        Snackbar.make(
+                            binding.root, "Registration successful!", Snackbar.LENGTH_SHORT
                         ).show()
                         findNavController().navigate(R.id.registerFragment_to_loginFragment)
-                    }, onError = { errorMessage ->
-                        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
+                    },
+                    onError = { errorMessage ->
+                        showError(errorMessage)
                     })
-                }
             }
         }
     }
 
     private fun validateInput(
-        firstName: String, lastName: String, phone: String, pass: String, cPass: String
+        firstName: String,
+        lastName: String,
+        phone: String,
+        password: String,
+        confirmPassword: String
     ): Boolean {
         return when {
-            firstName.isEmpty() -> {
-                showToast("First name cannot be empty")
-                false
-            }
-
-            lastName.isEmpty() -> {
-                showToast("Last name cannot be empty")
+            firstName.isEmpty() || lastName.isEmpty() -> {
+                showError("Name cannot be empty")
                 false
             }
 
             phone.isEmpty() -> {
-                showToast("Phone number cannot be empty")
+                showError("Invalid phone number")
                 false
             }
 
-            pass.isEmpty() || cPass.isEmpty() -> {
-                showToast("Password fields cannot be empty")
+            password.isEmpty() -> {
+                showError("Password cannot be empty")
                 false
             }
 
-            pass != cPass -> {
-                showToast("Passwords do not match")
+            password != confirmPassword -> {
+                showError("Passwords do not match")
                 false
             }
 
@@ -83,50 +95,12 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
         }
     }
 
-    private fun showToast(message: String) {
+    private fun showError(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }
-
-
-//class RegisterFragment : Fragment() {
-//
-//    private lateinit var binding: FragmentRegisterBinding
-//    private val authViewModel: AuthViewModel by activityViewModels()
-//
-//    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-//        super.onViewCreated(view, savedInstanceState)
-//
-//        binding = FragmentRegisterBinding.bind(view)
-//
-//        binding.apply {
-//
-//            backOption.setOnClickListener {
-//                findNavController().navigateUp()
-//            }
-//
-//            signupButton.setOnClickListener {
-//                val firstName = firstName.text.toString()
-//                val lastName = lastName.text.toString()
-//                val phone = phoneEditText.text.toString()
-//                val pass = passwordEditText.text.toString()
-//                val cPass = confirmPasswordEditText.text.toString()
-//
-//
-//                if (pass == cPass) {
-//                    authViewModel.register(firstName, lastName, phone, pass, cPass, onSuccess = {
-//                        Toast.makeText(
-//                            requireContext(), "User registered successfully", Toast.LENGTH_SHORT
-//                        ).show()
-//                        findNavController().navigate(R.id.registerFragment_to_loginFragment)
-//                    }, onError = { errorMessage ->
-//                        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
-//                    })
-//                } else {
-//                    Toast.makeText(requireContext(), "Passwords do not match", Toast.LENGTH_SHORT)
-//                        .show()
-//                }
-//            }
-//        }
-//    }
-//}

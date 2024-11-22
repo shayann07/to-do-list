@@ -19,3 +19,15 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Keep classes that are referenced by reflection
+-keep class com.example.yourpackage.** { *; }
+# Keep Activities, Services, BroadcastReceivers
+-keep public class * extends android.app.Activity
+-keep public class * extends android.app.Service
+-keep public class * extends android.content.BroadcastReceiver
+# Keep ViewModel and LiveData
+-keep class androidx.lifecycle.ViewModel { *; }
+-keep class androidx.lifecycle.LiveData { *; }
+# Keep Kotlin metadata (important for Kotlin)
+-keepclassmembers class **.KotlinSynthetic* { *; }

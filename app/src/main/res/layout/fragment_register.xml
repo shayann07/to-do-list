@@ -29,7 +29,7 @@
         android:textSize="12sp" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/signupScreen"
+        android:id="@+id/loginScreen"
         android:layout_width="100dp"
         android:layout_height="35dp"
         android:layout_marginTop="45dp"

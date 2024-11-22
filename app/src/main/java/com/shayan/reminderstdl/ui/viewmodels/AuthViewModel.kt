@@ -1,41 +1,64 @@
 package com.shayan.reminderstdl.ui.viewmodels
 
+import android.app.Application
+import android.content.Context
 import android.content.SharedPreferences
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.shayan.reminderstdl.data.models.ModelUser
 import com.shayan.reminderstdl.data.repository.AuthRepository
 import kotlinx.coroutines.launch
 
-class AuthViewModel(
-    private val authRepository: AuthRepository, private val sharedPreferences: SharedPreferences
-) : ViewModel() {
+class AuthViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val authRepository: AuthRepository = AuthRepository()
+    private val sharedPreferences: SharedPreferences =
+        application.getSharedPreferences("PrefsDatabase", Context.MODE_PRIVATE)
 
     fun login(
-        phone: String, pass: String, onSuccess: (ModelUser) -> Unit, onError: (String) -> Unit
+        phone: String, password: String, onSuccess: (ModelUser) -> Unit, onError: (String) -> Unit
     ) {
         viewModelScope.launch {
-            try {
-                val user = authRepository.loginUser(phone, pass)
-                if (user != null) {
-                    // Save user info to SharedPreferences on success
-                    saveUserPreferences(user.phone, true)
-
-                    onSuccess(user)
-                } else {
-                    onError("Invalid credentials")
-                }
-
-            } catch (e: Exception) {
-                onError(e.message ?: "An error occurred")
-            }
+            val result = authRepository.loginUser(phone, password)
+            result.fold(onSuccess = { user ->
+                saveUserPreferences(user)
+                onSuccess(user)
+            }, onFailure = { exception ->
+                onError(exception.message ?: "An error occurred during login")
+            })
         }
     }
 
-    private fun saveUserPreferences(phone: String, isLoggedIn: Boolean) {
+    fun register(
+        firstName: String,
+        lastName: String,
+        phone: String,
+        password: String,
+        confirmPassword: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        if (password != confirmPassword) {
+            onError("Passwords do not match")
+            return
+        }
+
+        viewModelScope.launch {
+            val result = authRepository.registerUser(firstName, lastName, phone, password)
+            result.fold(onSuccess = { onSuccess() }, onFailure = { exception ->
+                onError(
+                    exception.message ?: "An error occurred during registration"
+                )
+            })
+        }
+    }
+
+    private fun saveUserPreferences(user: ModelUser) {
         sharedPreferences.edit().apply {
-            putString("user_phone", phone)
-            putBoolean("is_logged_in", isLoggedIn)
+            putString("first_name", user.firstName)
+            putString("last_name", user.lastName)
+            putString("phone", user.phone)
+            putBoolean("is_logged_in", true)
             apply()
         }
     }
@@ -46,32 +69,4 @@ class AuthViewModel(
             apply()
         }
     }
-
-
-    fun register(
-        firstName: String,
-        lastName: String,
-        phone: String,
-        pass: String,
-        cPass: String,
-        onSuccess: () -> Unit,
-        onError: (String) -> Unit
-    ) {
-
-        viewModelScope.launch {
-            try {
-                val isSuccess = authRepository.registerUser(firstName, lastName, phone, pass, cPass)
-                if (isSuccess) {
-                    onSuccess()
-                } else {
-                    onError("Failed to register user")
-                }
-            } catch (e: Exception) {
-                onError(e.message ?: "An error occurred")
-            }
-        }
-
-    }
-
-
 }
