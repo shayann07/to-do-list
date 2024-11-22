@@ -8,31 +8,40 @@ class AuthRepository {
 
     private val database = FirebaseFirestore.getInstance()
 
-    suspend fun loginUser(phone: String, pass: String): ModelUser? {
+    // Login method for Firestore
+    suspend fun loginUser(phone: String, password: String): Result<ModelUser> {
+        return try {
+            val querySnapshot = database.collection("User")
+                .whereEqualTo("phone", phone)
+                .get()
+                .await()
 
-        val querySnapshot = database.collection("User").whereEqualTo("phone", phone).get().await()
-
-        if (querySnapshot.isEmpty) {
-            for (document in querySnapshot) {
-                val user = document.toObject(ModelUser::class.java)
-                if (user.password == pass) {
-                    return user
+            if (!querySnapshot.isEmpty) {
+                val userDocument = querySnapshot.documents[0]
+                val user = userDocument.toObject(ModelUser::class.java)
+                if (user != null && user.password == password) {
+                    Result.success(user)
+                } else {
+                    Result.failure(Exception("Incorrect password"))
                 }
+            } else {
+                Result.failure(Exception("User not found"))
             }
+        } catch (e: Exception) {
+            Result.failure(Exception("Login failed: ${e.localizedMessage}"))
         }
-        return null
     }
 
+    // Registration method for Firestore
     suspend fun registerUser(
-        firstName: String, lastName: String, phone: String, pass: String, cPass: String
-    ): Boolean {
-
-        val modelUser = ModelUser(firstName, lastName, phone, pass, cPass)
+        firstName: String, lastName: String, phone: String, password: String
+    ): Result<Unit> {
         return try {
+            val modelUser = ModelUser(firstName, lastName, phone, password)
             database.collection("User").add(modelUser).await()
-            true
+            Result.success(Unit)
         } catch (e: Exception) {
-            false
+            Result.failure(Exception("Registration failed: ${e.localizedMessage}"))
         }
     }
 }

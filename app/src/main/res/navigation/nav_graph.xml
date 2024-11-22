@@ -2,7 +2,19 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/splashFragment">
+    app:startDestination="@id/hostFragment">
+
+    <fragment
+        android:id="@+id/hostFragment"
+        android:name="com.shayan.reminderstdl.ui.fragments.HostFragment"
+        android:label="Host">
+        <action
+            android:id="@+id/hostFragment_to_splashFragment"
+            app:destination="@+id/splashFragment" />
+        <action
+            android:id="@+id/hostFragment_to_loginFragment"
+            app:destination="@+id/loginFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/splashFragment"
@@ -43,6 +55,10 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.shayan.reminderstdl.ui.fragments.HomeFragment"
-        android:label="Home" />
+        android:label="Home">
+        <action
+            android:id="@+id/homeFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
 
 </navigation>

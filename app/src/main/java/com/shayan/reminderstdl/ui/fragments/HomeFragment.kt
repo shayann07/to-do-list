@@ -2,28 +2,39 @@ package com.shayan.reminderstdl.ui.fragments
 
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.PopupMenu
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.shayan.reminderstdl.R
 import com.shayan.reminderstdl.databinding.FragmentHomeBinding
 import kotlin.reflect.KMutableProperty0
 
 class HomeFragment : Fragment() {
 
-    private lateinit var binding: FragmentHomeBinding
+    private var _binding: FragmentHomeBinding? = null
+    private val binding get() = _binding!!
     private lateinit var sharedPreferences: SharedPreferences
     private var isArrowDownICloud = true
     private var isArrowDownOutlook = true
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        // Inflate the layout using View Binding
+        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding = FragmentHomeBinding.bind(view)
         sharedPreferences =
             requireActivity().getSharedPreferences("PrefsDatabase", AppCompatActivity.MODE_PRIVATE)
 
@@ -51,9 +62,7 @@ class HomeFragment : Fragment() {
         return when (item.itemId) {
             R.id.log_out -> {
                 sharedPreferences.edit().clear().apply()
-                // Optionally navigate to login screen if necessary
-                // startActivity(Intent(requireActivity(), MainActivityLogin::class.java))
-                requireActivity().finish() // Close the activity
+                findNavController().navigate(R.id.homeFragment_to_loginFragment)
                 true
             }
 
@@ -64,5 +73,11 @@ class HomeFragment : Fragment() {
     private fun toggleVisibility(container: LinearLayout, arrowState: KMutableProperty0<Boolean>) {
         container.visibility = if (arrowState.get()) View.GONE else View.VISIBLE
         arrowState.set(!arrowState.get())
+    }
+
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
