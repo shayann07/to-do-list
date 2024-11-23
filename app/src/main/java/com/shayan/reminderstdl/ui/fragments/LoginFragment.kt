@@ -29,44 +29,46 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.signupScreen.setOnClickListener {
-            findNavController().navigate(R.id.loginFragment_to_registerFragment)
-        }
-
+        // Handle login button click
         binding.loginButton.setOnClickListener {
             val phone = binding.phoneEditText.text.toString().trim()
             val password = binding.passwordEditText.text.toString().trim()
 
             if (validateInput(phone, password)) {
-                authViewModel.login(phone, password, onSuccess = { user ->
-                    Toast.makeText(
-                        requireContext(), "Welcome ${user.firstName}!", Toast.LENGTH_SHORT
-                    ).show()
-
-                    // Navigate to HomeFragment and clear back stack
-                    findNavController().navigate(
-                        R.id.loginFragment_to_homeFragment, null, NavOptions.Builder().setPopUpTo(
-                            R.id.nav_graph, true
-                        ) // Clears all fragments up to the root of the navigation graph
-                            .build()
-                    )
-                }, onError = { errorMessage ->
-                    showError(errorMessage)
-                })
+                loginUser(phone, password)
             }
         }
 
+        // Handle "Register" button click
+        binding.signupScreen.setOnClickListener {
+            findNavController().navigate(R.id.loginFragment_to_registerFragment)
+        }
+    }
+
+    private fun loginUser(phone: String, password: String) {
+        authViewModel.login(phone, password, onSuccess = { user ->
+            Toast.makeText(
+                requireContext(), "Welcome, ${user.firstName ?: "User"}!", Toast.LENGTH_SHORT
+            ).show()
+            findNavController().navigate(
+                R.id.loginFragment_to_homeFragment, NavOptions.Builder().setPopUpTo(
+                    R.id.nav_graph, true
+                ).build()
+            )
+        }, onError = { errorMessage ->
+            Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
+        })
     }
 
     private fun validateInput(phone: String, password: String): Boolean {
         return when {
             phone.isEmpty() -> {
-                showError("Please enter a valid phone number")
+                showError("Phone number cannot be empty")
                 false
             }
 
             password.isEmpty() -> {
-                showError("Please enter your password")
+                showError("Password cannot be empty")
                 false
             }
 
