@@ -28,6 +28,7 @@ class SplashFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+//        context?.deleteDatabase("app_database")
 
         sharedPreferences =
             requireContext().getSharedPreferences("PrefsDatabase", Context.MODE_PRIVATE)

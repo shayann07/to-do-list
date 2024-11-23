@@ -8,8 +8,8 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.snackbar.Snackbar
 import com.shayan.reminderstdl.R
+import com.shayan.reminderstdl.data.models.User
 import com.shayan.reminderstdl.databinding.FragmentRegisterBinding
 import com.shayan.reminderstdl.ui.viewmodels.AuthViewModel
 
@@ -38,46 +38,31 @@ class RegisterFragment : Fragment() {
         }
 
         binding.signupButton.setOnClickListener {
-            val firstName = binding.firstName.text.toString().trim()
-            val lastName = binding.lastName.text.toString().trim()
             val phone = binding.phoneEditText.text.toString().trim()
             val password = binding.passwordEditText.text.toString().trim()
             val confirmPassword = binding.confirmPasswordEditText.text.toString().trim()
+            val firstName = binding.firstName.text.toString().trim()
+            val lastName = binding.lastName.text.toString().trim()
 
-            if (validateInput(firstName, lastName, phone, password, confirmPassword)) {
-                authViewModel.register(firstName,
-                    lastName,
-                    phone,
-                    password,
-                    confirmPassword,
-                    onSuccess = {
-                        Snackbar.make(
-                            binding.root, "Registration successful!", Snackbar.LENGTH_SHORT
-                        ).show()
-                        findNavController().navigate(R.id.registerFragment_to_loginFragment)
-                    },
-                    onError = { errorMessage ->
-                        showError(errorMessage)
-                    })
+            if (validateInput(phone, password, confirmPassword, firstName, lastName)) {
+                val user =
+                    User(phone = phone, password = password, firstName = firstName, lastName = lastName)
+                registerUser(user)
             }
         }
+
     }
 
     private fun validateInput(
-        firstName: String,
-        lastName: String,
         phone: String,
         password: String,
-        confirmPassword: String
+        confirmPassword: String,
+        firstName: String,
+        lastName: String
     ): Boolean {
         return when {
-            firstName.isEmpty() || lastName.isEmpty() -> {
-                showError("Name cannot be empty")
-                false
-            }
-
             phone.isEmpty() -> {
-                showError("Invalid phone number")
+                showError("Phone number cannot be empty")
                 false
             }
 
@@ -86,13 +71,37 @@ class RegisterFragment : Fragment() {
                 false
             }
 
+            confirmPassword.isEmpty() -> {
+                showError("Confirm password cannot be empty")
+                false
+            }
+
             password != confirmPassword -> {
                 showError("Passwords do not match")
                 false
             }
 
+            firstName.isEmpty() -> {
+                showError("First name cannot be empty")
+                false
+            }
+
+            lastName.isEmpty() -> {
+                showError("Last name cannot be empty")
+                false
+            }
+
             else -> true
         }
+    }
+
+    private fun registerUser(user: User) {
+        authViewModel.register(user, onSuccess = {
+            Toast.makeText(requireContext(), "Registration successful!", Toast.LENGTH_SHORT).show()
+            findNavController().navigate(R.id.registerFragment_to_loginFragment)
+        }, onError = { errorMessage ->
+            Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
+        })
     }
 
     private fun showError(message: String) {
