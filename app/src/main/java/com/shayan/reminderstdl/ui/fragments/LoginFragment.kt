@@ -50,11 +50,14 @@ class LoginFragment : Fragment() {
             Toast.makeText(
                 requireContext(), "Welcome, ${user.firstName ?: "User"}!", Toast.LENGTH_SHORT
             ).show()
-            findNavController().navigate(
-                R.id.loginFragment_to_homeFragment, NavOptions.Builder().setPopUpTo(
-                    R.id.nav_graph, true
-                ).build()
-            )
+            val navOptions = NavOptions.Builder().setPopUpTo(
+                R.id.nav_graph, true
+            )  // Set to pop the login fragment from the back stack
+                .build()
+
+            findNavController().navigate(R.id.loginFragment_to_homeFragment, null, navOptions)
+
+
         }, onError = { errorMessage ->
             Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
         })
