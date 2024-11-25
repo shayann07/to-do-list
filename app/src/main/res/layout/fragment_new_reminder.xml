@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    tools:context=".ui.fragments.NewReminderFragment">
+
+    <TextView
+        android:id="@+id/cancel_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_marginHorizontal="12dp"
+        android:layout_marginVertical="4dp"
+        android:fontFamily="@font/roboto_regular"
+        android:padding="8dp"
+        android:text="@string/cancel"
+        android:textColor="@color/light_blue"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/new_reminder_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerInParent="true"
+        android:layout_marginVertical="4dp"
+        android:fontFamily="@font/roboto_bold"
+        android:padding="8dp"
+        android:text="@string/new_reminder"
+        android:textColor="@color/white"
+        android:textSize="16sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginHorizontal="12dp"
+        android:layout_marginVertical="4dp"
+        android:fontFamily="@font/roboto_regular"
+        android:padding="8dp"
+        android:text="@string/add"
+        android:textColor="@color/light_blue"
+        android:textSize="16sp" />
+
+    <LinearLayout
+        android:id="@+id/details_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/new_reminder_text"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/textview_roundedcorners"
+        android:orientation="vertical">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="4dp"
+            android:background="@null"
+            android:fontFamily="@font/roboto_regular"
+            android:hint="@string/title"
+            android:inputType="textShortMessage"
+            android:padding="8dp"
+            android:textColorHint="@color/darker_gray"
+            android:textSize="16sp" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="4dp"
+            android:background="@null"
+            android:fontFamily="@font/roboto_regular"
+            android:gravity="top"
+            android:hint="@string/notes"
+            android:inputType="textMultiLine"
+            android:minHeight="100dp"
+            android:padding="8dp"
+            android:scrollHorizontally="false"
+            android:textColorHint="@color/darker_gray"
+            android:textSize="16sp" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/details_container"
+        android:layout_marginHorizontal="16dp">
+
+        <TextView
+            android:id="@+id/details_button"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/textview_roundedcorners"
+            android:drawablePadding="8dp"
+            android:fontFamily="@font/roboto_regular"
+            android:gravity="start"
+            android:padding="8dp"
+            android:text="@string/details"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:drawableEndCompat="@drawable/arrow_right" />
+
+    </LinearLayout>
+
+</RelativeLayout>
