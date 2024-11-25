@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    tools:context=".ui.fragments.DetailsFragment">
+
+    <!-- Cancel Button -->
+    <TextView
+        android:id="@+id/cancel_button"
+        style="@style/ButtonTextStyle"
+        android:layout_marginStart="12dp"
+        android:text="@string/new_reminder"
+        app:drawableStartCompat="@drawable/arrow_left"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- New Reminder Title -->
+    <TextView
+        android:id="@+id/new_reminder_text"
+        style="@style/TitleTextStyle"
+        android:text="@string/details"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Add Button -->
+    <TextView
+        android:id="@+id/add_button"
+        style="@style/ButtonTextStyle"
+        android:layout_marginEnd="12dp"
+        android:text="@string/add"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Details Section -->
+    <RelativeLayout
+        android:id="@+id/details_container"
+        style="@style/ContainerStyle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/new_reminder_text">
+
+        <TextView
+            android:id="@+id/date_button"
+            style="@style/ItemTextStyle"
+            android:drawablePadding="8dp"
+            android:text="@string/date"
+            app:drawableStartCompat="@drawable/schedule_icon" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/date_switch"
+            style="@style/SwitchStyle"
+            android:layout_alignParentEnd="true"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <CalendarView
+            android:id="@+id/calendar_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:visibility="gone" />
+    </RelativeLayout>
+
+    <!-- Time Section -->
+    <RelativeLayout
+        android:id="@+id/time_container"
+        style="@style/ContainerStyle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/details_container">
+
+        <TextView
+            android:id="@+id/time_button"
+            style="@style/ItemTextStyle"
+            android:drawablePadding="12dp"
+            android:text="@string/time"
+            app:drawableStartCompat="@drawable/_994342_alarm_clock_hour_time_watch_icon" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/time_switch"
+            style="@style/SwitchStyle"
+            android:layout_alignParentEnd="true"
+            app:layout_constraintEnd_toEndOf="parent" />
+    </RelativeLayout>
+
+    <!-- Location Section -->
+    <RelativeLayout
+        android:id="@+id/location_container"
+        style="@style/ContainerStyle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/time_container">
+
+        <TextView
+            android:id="@+id/location_button"
+            style="@style/ItemTextStyle"
+            android:drawablePadding="8dp"
+            android:text="Location"
+            app:drawableStartCompat="@drawable/_16279_location_arrow_icon" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/location_switch"
+            style="@style/SwitchStyle"
+            android:layout_alignParentEnd="true"
+            app:layout_constraintEnd_toEndOf="parent" />
+    </RelativeLayout>
+
+    <!-- Flag Section -->
+    <RelativeLayout
+        android:id="@+id/flag_container"
+        style="@style/ContainerStyle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/location_container">
+
+        <TextView
+            android:id="@+id/flag_button"
+            style="@style/ItemTextStyle"
+            android:drawablePadding="8dp"
+            android:text="@string/flag"
+            app:drawableStartCompat="@drawable/flagged_icon" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/flag_switch"
+            style="@style/SwitchStyle"
+            android:layout_alignParentEnd="true"
+            app:layout_constraintEnd_toEndOf="parent" />
+    </RelativeLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
