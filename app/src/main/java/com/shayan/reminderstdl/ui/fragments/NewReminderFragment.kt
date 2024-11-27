@@ -117,20 +117,35 @@ class NewReminderFragment : Fragment() {
             fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
                 if (location != null) {
                     val uri = "geo:${location.latitude},${location.longitude}"
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uri)).apply {
-                        setPackage("com.google.android.apps.maps")
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uri))
+
+                    // Check if Google Maps is installed
+                    val mapsPackage = "com.google.android.apps.maps"
+                    val mapsIntent = Intent(intent).apply {
+                        setPackage(mapsPackage)
                     }
-                    if (intent.resolveActivity(requireActivity().packageManager) != null) {
+
+                    // Try launching Google Maps
+                    if (mapsIntent.resolveActivity(requireActivity().packageManager) != null) {
+                        startActivity(mapsIntent)
+                    } else if (intent.resolveActivity(requireActivity().packageManager) != null) {
+                        // Fallback to any other app that supports the geo URI
                         startActivity(intent)
                     } else {
-                        Toast.makeText(
-                            requireContext(), "Google Maps is not installed", Toast.LENGTH_SHORT
-                        ).show()
+                        // Open location in a browser as the last resort
+                        val browserIntent = Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}")
+                        )
+                        startActivity(browserIntent)
                     }
                 } else {
                     Toast.makeText(requireContext(), "Location not available", Toast.LENGTH_SHORT)
                         .show()
                 }
+            }.addOnFailureListener {
+                Toast.makeText(requireContext(), "Failed to retrieve location", Toast.LENGTH_SHORT)
+                    .show()
             }
         } else {
             Toast.makeText(
@@ -138,6 +153,7 @@ class NewReminderFragment : Fragment() {
             ).show()
         }
     }
+
 
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<out String>, grantResults: IntArray
