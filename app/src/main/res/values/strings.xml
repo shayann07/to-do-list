@@ -47,4 +47,5 @@
     <string name="date">Date</string>
     <string name="time">Time</string>
     <string name="flag">Flag</string>
+    <string name="location">Location</string>
 </resources>

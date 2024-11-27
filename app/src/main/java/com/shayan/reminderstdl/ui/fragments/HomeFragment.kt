@@ -48,6 +48,10 @@ class HomeFragment : Fragment() {
         binding.textviewOutlook.setOnClickListener {
             toggleVisibility(binding.outlookContainer, ::isArrowDownOutlook)
         }
+
+        binding.newReminderButton.setOnClickListener{
+            findNavController().navigate(R.id.homeFragment_to_newReminderFragment)
+        }
     }
 
     private fun showPopupMenu() {

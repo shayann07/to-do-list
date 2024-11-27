@@ -26,7 +26,7 @@ class HostFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Navigate to SplashFragment
-        findNavController().navigate(R.id.hostFragment_to_splashFragment)
+        findNavController().navigate(R.id.hostFragment_to_newReminderFragment)
     }
 
     override fun onDestroyView() {
