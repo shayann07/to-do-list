@@ -59,6 +59,7 @@ dependencies {
     implementation(libs.lottie)
     implementation(libs.recyclerview)
     implementation (libs.androidx.room.runtime)
+    implementation ("com.google.android.gms:play-services-location:21.3.0")
     implementation(libs.androidx.room.ktx)
     ksp (libs.androidx.room.compiler)
     testImplementation(libs.junit)

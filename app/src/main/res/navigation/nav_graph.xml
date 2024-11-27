@@ -14,6 +14,9 @@
         <action
             android:id="@+id/hostFragment_to_loginFragment"
             app:destination="@+id/loginFragment" />
+        <action
+            android:id="@+id/hostFragment_to_newReminderFragment"
+            app:destination="@+id/newReminderFragment" />"
     </fragment>
 
     <fragment
@@ -59,6 +62,16 @@
         <action
             android:id="@+id/homeFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
+        <action
+            android:id="@+id/homeFragment_to_newReminderFragment"
+            app:destination="@id/newReminderFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/newReminderFragment"
+        android:name="com.shayan.reminderstdl.ui.fragments.NewReminderFragment"
+        android:label="New Reminder">
+
     </fragment>
 
 </navigation>
