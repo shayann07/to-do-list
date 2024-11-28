@@ -24,9 +24,9 @@ class HostFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+//        context?.deleteDatabase("app_database")
         // Navigate to SplashFragment
-        findNavController().navigate(R.id.hostFragment_to_homeFragment)
+        findNavController().navigate(R.id.hostFragment_to_loginFragment)
     }
 
     override fun onDestroyView() {

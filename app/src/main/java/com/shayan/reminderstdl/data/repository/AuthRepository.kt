@@ -26,7 +26,7 @@ class AuthRepository(context: Context) {
                     saveUserLocally(user)
                     Result.success(user)
                 } else {
-                    Result.failure(Exception("Incorrect password"))
+                    Result.failure(Exception("Incorrect password or user data is invalid"))
                 }
             } else {
                 Result.failure(Exception("User not found"))
@@ -37,10 +37,12 @@ class AuthRepository(context: Context) {
     }
 
     // Registration method for Firestore
-    suspend fun registerUser(
-        user: User
-    ): Result<Unit> {
+    suspend fun registerUser(user: User): Result<Unit> {
         return try {
+            // Validate user fields before registration
+            if (user.phone.isEmpty() || user.password.isEmpty()) {
+                return Result.failure(Exception("Invalid registration data"))
+            }
 
             database.collection("User").add(user).await()
             saveUserLocally(user)
@@ -67,6 +69,4 @@ class AuthRepository(context: Context) {
             userDao.clearAllUsers()
         }
     }
-
-
 }

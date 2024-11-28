@@ -1,10 +1,10 @@
 package com.shayan.reminderstdl.ui.fragments
 
 import android.Manifest
+import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
@@ -16,21 +16,47 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import com.google.android.gms.location.*
+import com.google.android.material.snackbar.Snackbar
+import com.shayan.reminderstdl.R
+import com.shayan.reminderstdl.data.models.Tasks
 import com.shayan.reminderstdl.databinding.FragmentNewReminderBinding
+import com.shayan.reminderstdl.ui.viewmodels.AuthViewModel
+import com.shayan.reminderstdl.ui.viewmodels.TaskViewModel
+import java.text.SimpleDateFormat
+import java.util.*
 
 class NewReminderFragment : Fragment() {
 
     private var _binding: FragmentNewReminderBinding? = null
     private val binding get() = _binding!!
+    private val authViewModel: AuthViewModel by viewModels()
+    private val taskViewModel: TaskViewModel by viewModels()
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private val locationPermissionRequestCode = 1001
+    private val LOCATION_PERMISSION_REQUEST_CODE = 1001
+    private var selectedDate: String? = null
+    private var selectedTime: String? = null
+    private var isFlagged: Boolean = false
+    private var selectedLocation: String? = null
+    private var userPhone: String? = null
+
+    private val locationCallback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult) {
+            val location = locationResult.lastLocation
+            if (location != null) {
+                binding.currentLocationIcon.visibility = View.VISIBLE
+                selectedLocation = "${location.latitude}, ${location.longitude}"
+                fusedLocationClient.removeLocationUpdates(this)
+            } else {
+                Toast.makeText(
+                    requireContext(), "Unable to fetch new location data", Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -42,20 +68,138 @@ class NewReminderFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        authViewModel.fetchLocalUser(userPhone ?: "") { user ->
+            userPhone = user?.phone
+
+            if (userPhone == null) {
+                // Show a message or handle the case when the user is not found
+                Snackbar.make(binding.root, "User phone not found", Snackbar.LENGTH_SHORT).show()
+                return@fetchLocalUser
+            }
+
+            // Only enable the "addTaskButton" after the phone is fetched
+            binding.addTaskButton.setOnClickListener {
+                val title = binding.titleInput.text.toString().trim()
+                val notes = binding.notesInput.text.toString().trim()
+
+                if (title.isNotEmpty()) {
+                    val task = Tasks(
+                        title = title,
+                        notes = notes,
+                        date = selectedDate,
+                        time = selectedTime,
+                        flag = isFlagged,
+                        location = if (binding.locationSwitch.isChecked) selectedLocation else null
+                    )
+                    taskViewModel.saveTask(userPhone!!, task)
+                } else {
+                    Snackbar.make(binding.root, "At least, enter a title", Snackbar.LENGTH_SHORT)
+                        .show()
+                }
+            }
+        }
+
+
+        binding.cancelButton.setOnClickListener {
+            clearForm()
+            findNavController().navigate(R.id.newReminderFragment_to_homeFragment)
+        }
+
+        setupDateSwitch()
+        setupTimeSwitch()
+        setupFlagSwitch()
+        setupLocationSwitch()
+        setupLocationIconClick()
+
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
 
-        // Listen to location switch toggle
+        taskViewModel.taskCreationStatus.observe(viewLifecycleOwner, { isSuccess ->
+            if (isSuccess) {
+                Toast.makeText(requireContext(), "Task created successfully", Toast.LENGTH_SHORT)
+                    .show()
+                clearForm()
+                findNavController().navigate(R.id.newReminderFragment_to_homeFragment)
+            } else {
+                Toast.makeText(requireContext(), "Task creation failed", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+
+    private fun setupDateSwitch() {
+        binding.dateSwitch.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                binding.calendarContainer.visibility = View.VISIBLE
+                Toast.makeText(requireContext(), "Date picker visible", Toast.LENGTH_SHORT).show()
+            } else {
+                binding.calendarContainer.visibility = View.GONE
+                selectedDate = null
+                Toast.makeText(requireContext(), "Date selection cleared", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        }
+
+        binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
+            val calendar = Calendar.getInstance()
+            calendar.set(year, month, dayOfMonth)
+
+            selectedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
+// Update UI and show Toast with the selected date
+            binding.dateDisplay.text = selectedDate
+            Toast.makeText(requireContext(), "Selected date: $selectedDate", Toast.LENGTH_SHORT)
+                .show()
+        }
+    }
+
+    private fun setupTimeSwitch() {
+        binding.timeSwitch.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                showTimePicker()
+            } else {
+                binding.timeDisplay.text = ""
+                selectedTime = null
+                Toast.makeText(requireContext(), "Time selection cleared", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        }
+    }
+
+    private fun showTimePicker() {
+        val calendar = Calendar.getInstance()
+        val hour = calendar.get(Calendar.HOUR_OF_DAY)
+        val minute = calendar.get(Calendar.MINUTE)
+
+        val timePickerDialog = TimePickerDialog(
+            requireContext(), { _, selectedHour, selectedMinute ->
+                selectedTime = String.format("%02d:%02d", selectedHour, selectedMinute)
+                binding.timeDisplay.text = selectedTime
+                Toast.makeText(requireContext(), "Selected time: $selectedTime", Toast.LENGTH_SHORT)
+                    .show()
+            }, hour, minute, true // 24-hour format
+        )
+        timePickerDialog.show()
+    }
+
+    private fun setupFlagSwitch() {
+        binding.flagSwitch.setOnCheckedChangeListener { _, isChecked ->
+            isFlagged = isChecked
+            Toast.makeText(
+                requireContext(),
+                if (isChecked) "Reminder flagged" else "Reminder unflagged",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    private fun setupLocationSwitch() {
         binding.locationSwitch.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 handleLocationSwitch()
             } else {
                 binding.currentLocationIcon.visibility = View.GONE
+                selectedLocation = null
+                Toast.makeText(requireContext(), "Location cleared", Toast.LENGTH_SHORT).show()
             }
-        }
-
-        // Handle click on current location icon
-        binding.currentLocationIcon.setOnClickListener {
-            openLocationInGoogleMaps()
         }
     }
 
@@ -66,30 +210,20 @@ class NewReminderFragment : Fragment() {
         ) {
             getCurrentLocation()
         } else {
-            // Request location permissions
             requestPermissions(
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), locationPermissionRequestCode
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_REQUEST_CODE
             )
         }
     }
 
     private fun getCurrentLocation() {
         try {
-            if (ContextCompat.checkSelfPermission(
-                    requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
-                if (!isLocationEnabled()) {
-                    Toast.makeText(requireContext(), "Enable location services", Toast.LENGTH_SHORT)
-                        .show()
-                    return
-                }
-
-                fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+            if (isLocationEnabled()) {
+                fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                     if (location != null) {
                         binding.currentLocationIcon.visibility = View.VISIBLE
+                        selectedLocation = "${location.latitude}, ${location.longitude}"
                     } else {
-                        // Request new location if no cached location available
                         requestNewLocationData()
                     }
                 }.addOnFailureListener {
@@ -98,74 +232,11 @@ class NewReminderFragment : Fragment() {
                     ).show()
                 }
             } else {
-                // Request permissions
-                requestPermissions(
-                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), locationPermissionRequestCode
-                )
+                Toast.makeText(requireContext(), "Enable location services", Toast.LENGTH_SHORT)
+                    .show()
             }
         } catch (e: SecurityException) {
             Toast.makeText(requireContext(), "Permission denied", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-
-    private fun openLocationInGoogleMaps() {
-        if (ContextCompat.checkSelfPermission(
-                requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
-                if (location != null) {
-                    val uri = "geo:${location.latitude},${location.longitude}"
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uri))
-
-                    // Check if Google Maps is installed
-                    val mapsPackage = "com.google.android.apps.maps"
-                    val mapsIntent = Intent(intent).apply {
-                        setPackage(mapsPackage)
-                    }
-
-                    // Try launching Google Maps
-                    if (mapsIntent.resolveActivity(requireActivity().packageManager) != null) {
-                        startActivity(mapsIntent)
-                    } else if (intent.resolveActivity(requireActivity().packageManager) != null) {
-                        // Fallback to any other app that supports the geo URI
-                        startActivity(intent)
-                    } else {
-                        // Open location in a browser as the last resort
-                        val browserIntent = Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse("https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}")
-                        )
-                        startActivity(browserIntent)
-                    }
-                } else {
-                    Toast.makeText(requireContext(), "Location not available", Toast.LENGTH_SHORT)
-                        .show()
-                }
-            }.addOnFailureListener {
-                Toast.makeText(requireContext(), "Failed to retrieve location", Toast.LENGTH_SHORT)
-                    .show()
-            }
-        } else {
-            Toast.makeText(
-                requireContext(), "Location permissions are not granted", Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
-
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == locationPermissionRequestCode) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                getCurrentLocation()
-            } else {
-                Toast.makeText(requireContext(), "Location permission denied", Toast.LENGTH_SHORT)
-                    .show()
-            }
         }
     }
 
@@ -175,27 +246,37 @@ class NewReminderFragment : Fragment() {
 
         if (ActivityCompat.checkSelfPermission(
                 requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            return // Permissions not granted, exit
+            return
         }
 
-        fusedLocationClient.requestLocationUpdates(locationRequest, object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult) {
-                val location = locationResult.lastLocation
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest, locationCallback, Looper.getMainLooper()
+        )
+    }
+
+    private fun setupLocationIconClick() {
+        binding.currentLocationIcon.setOnClickListener {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 if (location != null) {
-                    // Successfully retrieved location
-                    binding.currentLocationIcon.visibility = View.VISIBLE
-                    fusedLocationClient.removeLocationUpdates(this)
+                    val uri = Uri.parse("geo:${location.latitude},${location.longitude}")
+                    val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+                        setPackage("com.google.android.apps.maps")
+                    }
+                    if (intent.resolveActivity(requireActivity().packageManager) != null) {
+                        startActivity(intent)
+                    } else {
+                        Toast.makeText(
+                            requireContext(), "Google Maps not installed", Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 } else {
-                    Toast.makeText(
-                        requireContext(), "Unable to fetch new location data", Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(requireContext(), "Location not available", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
-        }, Looper.getMainLooper())
+        }
     }
 
     private fun isLocationEnabled(): Boolean {
@@ -206,9 +287,33 @@ class NewReminderFragment : Fragment() {
         )
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getCurrentLocation()
+            } else {
+                Toast.makeText(requireContext(), "Location permission denied", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        }
+    }
+
+    private fun clearForm() {
+        // Clear the input fields and reset switches
+        binding.titleInput.text.clear()
+        binding.notesInput.text.clear()
+        binding.dateSwitch.isChecked = false
+        binding.timeSwitch.isChecked = false
+        binding.flagSwitch.isChecked = false
+        binding.locationSwitch.isChecked = false
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 }

@@ -36,6 +36,7 @@
 
     <!-- Add Button -->
     <TextView
+        android:id="@+id/add_task_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
@@ -59,6 +60,7 @@
         android:orientation="vertical">
 
         <EditText
+            android:id="@+id/title_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="4dp"
@@ -71,6 +73,7 @@
             android:textSize="16sp" />
 
         <EditText
+            android:id="@+id/notes_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="4dp"
@@ -86,158 +89,192 @@
             android:textSize="16sp" />
     </LinearLayout>
 
-    <!-- Options Section -->
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/details_container"
-        android:layout_marginHorizontal="16dp"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:layout_below="@id/details_container"
+        android:fillViewport="true">
 
-        <!-- Date Section -->
-        <RelativeLayout
-            android:id="@+id/date_container"
-            style="@style/ContainerStyle">
+        <!-- Options Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:orientation="vertical">
 
-            <ImageView
-                android:id="@+id/date_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="8dp"
-                android:src="@drawable/schedule_icon" />
+            <!-- Date Section -->
+            <RelativeLayout
+                android:id="@+id/date_container"
+                style="@style/ContainerStyle">
 
-            <TextView
-                android:id="@+id/date_button"
-                style="@style/ItemTextStyle"
-                android:layout_marginStart="8dp"
-                android:layout_toEndOf="@+id/date_icon"
-                android:text="@string/date" />
+                <ImageView
+                    android:id="@+id/date_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="12dp"
+                    android:src="@drawable/schedule_icon" />
 
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/date_switch"
-                style="@style/SwitchStyle"
-                android:layout_alignParentEnd="true" />
+                <TextView
+                    android:id="@+id/date_button"
+                    style="@style/ItemTextStyle"
+                    android:layout_marginStart="8dp"
+                    android:layout_toEndOf="@+id/date_icon"
+                    android:text="@string/date" />
 
-            <CalendarView
-                android:id="@+id/calendar_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/date_button"
-                android:background="@null"
-                android:visibility="gone" />
-        </RelativeLayout>
+                <!-- Time Display -->
 
-        <RelativeLayout
-            android:id="@+id/time_container"
-            style="@style/ContainerStyle">
+                <TextView
+                    android:id="@+id/date_display"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_toStartOf="@+id/date_switch"
+                    android:fontFamily="@font/roboto_regular"
+                    android:text=""
+                    android:textColor="@color/light_blue"
+                    android:textSize="16sp"
+                    android:visibility="visible" />
 
-            <!-- Time Icon -->
-            <ImageView
-                android:id="@+id/time_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="8dp"
-                android:src="@drawable/_994342_alarm_clock_hour_time_watch_icon" />
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/date_switch"
+                    style="@style/SwitchStyle"
+                    android:layout_alignParentEnd="true" />
 
-            <!-- Time Label -->
-            <TextView
-                android:id="@+id/time_button"
-                style="@style/ItemTextStyle"
-                android:layout_marginStart="8dp"
-                android:layout_toEndOf="@id/time_icon"
-                android:text="@string/time" />
+                <LinearLayout
+                    android:id="@+id/calendar_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/date_button"
+                    android:background="@null"
+                    android:orientation="vertical"
+                    android:visibility="gone">
 
-            <!-- Time Display -->
-            <TextView
-                android:id="@+id/time_display"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="8dp"
-                android:layout_toStartOf="@+id/time_switch"
-                android:fontFamily="@font/roboto_regular"
-                android:text=""
-                android:textColor="@color/light_blue"
-                android:textSize="16sp"
-                android:visibility="visible" />
+                    <CalendarView
+                        android:id="@+id/calendar_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@null" />
 
-            <!-- Time Switch -->
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/time_switch"
-                style="@style/SwitchStyle"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true" />
-        </RelativeLayout>
+                </LinearLayout>
 
-        <!-- Location Section -->
-        <RelativeLayout
-            android:id="@+id/location_container"
-            style="@style/ContainerStyle">
+            </RelativeLayout>
 
-            <ImageView
-                android:id="@+id/location_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="8dp"
-                android:src="@drawable/_16279_location_arrow_icon" />
+            <RelativeLayout
+                android:id="@+id/time_container"
+                style="@style/ContainerStyle">
 
-            <TextView
-                android:id="@+id/location_button"
-                style="@style/ItemTextStyle"
-                android:layout_marginStart="8dp"
-                android:layout_toEndOf="@+id/location_icon"
-                android:text="@string/location" />
+                <!-- Time Icon -->
+                <ImageView
+                    android:id="@+id/time_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="8dp"
+                    android:src="@drawable/_994342_alarm_clock_hour_time_watch_icon" />
 
-            <ImageView
-                android:id="@+id/current_location_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="8dp"
-                android:layout_toStartOf="@+id/location_switch"
-                android:src="@drawable/_216353_location_locator_map_marker_pin_icon"
-                android:visibility="gone" />
+                <!-- Time Label -->
+                <TextView
+                    android:id="@+id/time_button"
+                    style="@style/ItemTextStyle"
+                    android:layout_marginStart="8dp"
+                    android:layout_toEndOf="@id/time_icon"
+                    android:text="@string/time" />
 
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/location_switch"
-                style="@style/SwitchStyle"
-                android:layout_alignParentEnd="true" />
+                <!-- Time Display -->
+                <TextView
+                    android:id="@+id/time_display"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="8dp"
+                    android:layout_toStartOf="@+id/time_switch"
+                    android:fontFamily="@font/roboto_regular"
+                    android:text=""
+                    android:textColor="@color/light_blue"
+                    android:textSize="16sp"
+                    android:visibility="visible" />
+
+                <!-- Time Switch -->
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/time_switch"
+                    style="@style/SwitchStyle"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true" />
+            </RelativeLayout>
+
+            <!-- Location Section -->
+            <RelativeLayout
+                android:id="@+id/location_container"
+                style="@style/ContainerStyle">
+
+                <ImageView
+                    android:id="@+id/location_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="8dp"
+                    android:src="@drawable/_16279_location_arrow_icon" />
+
+                <TextView
+                    android:id="@+id/location_button"
+                    style="@style/ItemTextStyle"
+                    android:layout_marginStart="8dp"
+                    android:layout_toEndOf="@+id/location_icon"
+                    android:text="@string/location" />
+
+                <ImageView
+                    android:id="@+id/current_location_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="8dp"
+                    android:layout_toStartOf="@+id/location_switch"
+                    android:src="@drawable/_216353_location_locator_map_marker_pin_icon"
+                    android:visibility="gone" />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/location_switch"
+                    style="@style/SwitchStyle"
+                    android:layout_alignParentEnd="true" />
 
 
-        </RelativeLayout>
+            </RelativeLayout>
 
-        <!-- Flag Section -->
-        <RelativeLayout
-            android:id="@+id/flag_container"
-            style="@style/ContainerStyle">
+            <!-- Flag Section -->
+            <RelativeLayout
+                android:id="@+id/flag_container"
+                style="@style/ContainerStyle">
 
-            <ImageView
-                android:id="@+id/flag_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="8dp"
-                android:src="@drawable/flagged_icon" />
+                <ImageView
+                    android:id="@+id/flag_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="8dp"
+                    android:src="@drawable/flagged_icon" />
 
-            <TextView
-                android:id="@+id/flag_button"
-                style="@style/ItemTextStyle"
-                android:layout_marginStart="8dp"
-                android:layout_toEndOf="@+id/flag_icon"
-                android:text="@string/flag" />
+                <TextView
+                    android:id="@+id/flag_button"
+                    style="@style/ItemTextStyle"
+                    android:layout_marginStart="8dp"
+                    android:layout_toEndOf="@+id/flag_icon"
+                    android:text="@string/flag" />
 
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/flag_switch"
-                style="@style/SwitchStyle"
-                android:layout_alignParentEnd="true" />
-        </RelativeLayout>
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/flag_switch"
+                    style="@style/SwitchStyle"
+                    android:layout_alignParentEnd="true" />
+            </RelativeLayout>
 
-    </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
 </RelativeLayout>
