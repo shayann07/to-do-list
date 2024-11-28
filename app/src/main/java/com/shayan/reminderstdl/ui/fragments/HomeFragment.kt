@@ -69,7 +69,6 @@ class HomeFragment : Fragment() {
                 findNavController().navigate(R.id.homeFragment_to_loginFragment)
                 true
             }
-
             else -> false
         }
     }
