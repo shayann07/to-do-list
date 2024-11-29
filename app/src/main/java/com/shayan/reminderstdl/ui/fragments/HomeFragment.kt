@@ -9,6 +9,7 @@ import android.widget.LinearLayout
 import android.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.shayan.reminderstdl.R
 import com.shayan.reminderstdl.databinding.FragmentHomeBinding
@@ -64,6 +65,9 @@ class HomeFragment : Fragment() {
             R.id.log_out -> {
                 // Sign out the user using Firebase Authentication
                 firebaseAuth.signOut()
+
+                // Show Snackbar after logging out
+                Snackbar.make(binding.root, "Successfully logged out", Snackbar.LENGTH_SHORT).show()
 
                 // Navigate back to the login screen
                 findNavController().navigate(R.id.homeFragment_to_loginFragment)

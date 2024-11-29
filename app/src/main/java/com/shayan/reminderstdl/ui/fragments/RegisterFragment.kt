@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import com.google.android.material.snackbar.Snackbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -52,7 +52,6 @@ class RegisterFragment : Fragment() {
                 registerUser(user, password)
             }
         }
-
     }
 
     private fun validateInput(
@@ -101,10 +100,10 @@ class RegisterFragment : Fragment() {
         viewModel.register(user, password, onSuccess = {
             saveUserEmailToPrefs(requireContext(), user.email)
 
-            Toast.makeText(requireContext(), "Registration successful!", Toast.LENGTH_SHORT).show()
+            Snackbar.make(requireView(), "Registration successful!", Snackbar.LENGTH_SHORT).show()
             findNavController().navigate(R.id.registerFragment_to_loginFragment)
         }, onError = { errorMessage ->
-            Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
+            Snackbar.make(requireView(), errorMessage, Snackbar.LENGTH_SHORT).show()
         })
     }
 
@@ -113,9 +112,8 @@ class RegisterFragment : Fragment() {
         sharedPreferences.edit().putString("userEmail", email).apply()
     }
 
-
     private fun showError(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+        Snackbar.make(requireView(), message, Snackbar.LENGTH_SHORT).show()
     }
 
     override fun onDestroyView() {

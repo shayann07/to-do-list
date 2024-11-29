@@ -9,9 +9,6 @@
         android:name="com.shayan.reminderstdl.ui.fragments.HostFragment"
         android:label="Host">
         <action
-            android:id="@+id/hostFragment_to_splashFragment"
-            app:destination="@+id/splashFragment" />
-        <action
             android:id="@+id/hostFragment_to_loginFragment"
             app:destination="@+id/loginFragment" />
         <action
@@ -20,19 +17,6 @@
         <action
             android:id="@+id/hostFragment_to_homeFragment"
             app:destination="@+id/homeFragment" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/splashFragment"
-        android:name="com.shayan.reminderstdl.ui.fragments.SplashFragment"
-        android:label="Splash">
-        <action
-            android:id="@+id/splashFragment_to_loginFragment"
-            app:destination="@+id/loginFragment" />
-        <action
-            android:id="@+id/splashFragment_to_homeFragment"
-            app:destination="@+id/homeFragment" />
-
     </fragment>
 
     <fragment

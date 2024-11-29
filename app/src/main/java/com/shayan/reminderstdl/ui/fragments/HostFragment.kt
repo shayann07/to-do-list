@@ -18,7 +18,6 @@ class HostFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout using View Binding
         _binding = FragmentHostBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -26,18 +25,16 @@ class HostFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val firebaseAuth = FirebaseAuth.getInstance()
+        val currentUser = FirebaseAuth.getInstance().currentUser
 
-        // Check if the user is logged in using FirebaseAuth
-        val currentUser = firebaseAuth.currentUser
-
-        if (currentUser != null) {
-            // If the user is logged in, navigate directly to the home screen
-            findNavController().navigate(R.id.hostFragment_to_homeFragment)
+        // Navigate based on user authentication state
+        val destination = if (currentUser != null) {
+            R.id.hostFragment_to_homeFragment  // User logged in
         } else {
-            // If not, navigate to the login screen
-            findNavController().navigate(R.id.hostFragment_to_loginFragment)
+            R.id.hostFragment_to_loginFragment // User not logged in
         }
+
+        findNavController().navigate(destination)
     }
 
     override fun onDestroyView() {
