@@ -12,7 +12,6 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -50,8 +49,8 @@ class NewReminderFragment : Fragment() {
                 selectedLocation = "${location.latitude}, ${location.longitude}"
                 fusedLocationClient.removeLocationUpdates(this)
             } else {
-                Toast.makeText(
-                    requireContext(), "Unable to fetch new location data", Toast.LENGTH_SHORT
+                Snackbar.make(
+                    binding.root, "Unable to fetch new location data", Snackbar.LENGTH_SHORT
                 ).show()
             }
         }
@@ -113,12 +112,12 @@ class NewReminderFragment : Fragment() {
         // Observe task creation status
         viewModel.taskCreationStatus.observe(viewLifecycleOwner, { isSuccess ->
             if (isSuccess) {
-                Toast.makeText(requireContext(), "Task created successfully", Toast.LENGTH_SHORT)
+                Snackbar.make(requireView(), "Task created successfully", Snackbar.LENGTH_SHORT)
                     .show()
                 clearForm()
                 findNavController().navigate(R.id.newReminderFragment_to_homeFragment)
             } else {
-                Toast.makeText(requireContext(), "Task creation failed", Toast.LENGTH_SHORT).show()
+                Snackbar.make(requireView(), "Task creation failed", Snackbar.LENGTH_SHORT).show()
             }
         })
     }
@@ -127,12 +126,11 @@ class NewReminderFragment : Fragment() {
         binding.dateSwitch.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 binding.calendarContainer.visibility = View.VISIBLE
-                Toast.makeText(requireContext(), "Date picker visible", Toast.LENGTH_SHORT).show()
+                Snackbar.make(requireView(), "Date picker visible", Snackbar.LENGTH_SHORT).show()
             } else {
                 binding.calendarContainer.visibility = View.GONE
                 selectedDate = null
-                Toast.makeText(requireContext(), "Date selection cleared", Toast.LENGTH_SHORT)
-                    .show()
+//                Snackbar.make(requireView(), "Date selection cleared", Snackbar.LENGTH_SHORT).show()
             }
         }
 
@@ -141,9 +139,9 @@ class NewReminderFragment : Fragment() {
             calendar.set(year, month, dayOfMonth)
 
             selectedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
-// Update UI and show Toast with the selected date
+            // Update UI and show Snackbar with the selected date
             binding.dateDisplay.text = selectedDate
-            Toast.makeText(requireContext(), "Selected date: $selectedDate", Toast.LENGTH_SHORT)
+            Snackbar.make(requireView(), "Selected date: $selectedDate", Snackbar.LENGTH_SHORT)
                 .show()
         }
     }
@@ -155,8 +153,7 @@ class NewReminderFragment : Fragment() {
             } else {
                 binding.timeDisplay.text = ""
                 selectedTime = null
-                Toast.makeText(requireContext(), "Time selection cleared", Toast.LENGTH_SHORT)
-                    .show()
+//                Snackbar.make(requireView(), "Time selection cleared", Snackbar.LENGTH_SHORT).show()
             }
         }
     }
@@ -170,7 +167,7 @@ class NewReminderFragment : Fragment() {
             requireContext(), { _, selectedHour, selectedMinute ->
                 selectedTime = String.format("%02d:%02d", selectedHour, selectedMinute)
                 binding.timeDisplay.text = selectedTime
-                Toast.makeText(requireContext(), "Selected time: $selectedTime", Toast.LENGTH_SHORT)
+                Snackbar.make(requireView(), "Selected time: $selectedTime", Snackbar.LENGTH_SHORT)
                     .show()
             }, hour, minute, true // 24-hour format
         )
@@ -180,11 +177,11 @@ class NewReminderFragment : Fragment() {
     private fun setupFlagSwitch() {
         binding.flagSwitch.setOnCheckedChangeListener { _, isChecked ->
             isFlagged = isChecked
-            Toast.makeText(
-                requireContext(),
-                if (isChecked) "Reminder flagged" else "Reminder unflagged",
-                Toast.LENGTH_SHORT
-            ).show()
+//            Snackbar.make(
+//                requireView(),
+//                if (isChecked) "Reminder flagged" else "Reminder unflagged",
+//                Snackbar.LENGTH_SHORT
+//            ).show()
         }
     }
 
@@ -195,7 +192,7 @@ class NewReminderFragment : Fragment() {
             } else {
                 binding.currentLocationIcon.visibility = View.GONE
                 selectedLocation = null
-                Toast.makeText(requireContext(), "Location cleared", Toast.LENGTH_SHORT).show()
+//                Snackbar.make(requireView(), "Location cleared", Snackbar.LENGTH_SHORT).show()
             }
         }
     }
@@ -224,16 +221,16 @@ class NewReminderFragment : Fragment() {
                         requestNewLocationData()
                     }
                 }.addOnFailureListener {
-                    Toast.makeText(
-                        requireContext(), "Failed to retrieve location", Toast.LENGTH_SHORT
+                    Snackbar.make(
+                        requireView(), "Failed to retrieve location", Snackbar.LENGTH_SHORT
                     ).show()
                 }
             } else {
-                Toast.makeText(requireContext(), "Enable location services", Toast.LENGTH_SHORT)
+                Snackbar.make(requireView(), "Enable location services", Snackbar.LENGTH_SHORT)
                     .show()
             }
         } catch (e: SecurityException) {
-            Toast.makeText(requireContext(), "Permission denied", Toast.LENGTH_SHORT).show()
+            Snackbar.make(requireView(), "Permission denied", Snackbar.LENGTH_SHORT).show()
         }
     }
 
@@ -264,12 +261,12 @@ class NewReminderFragment : Fragment() {
                     if (intent.resolveActivity(requireActivity().packageManager) != null) {
                         startActivity(intent)
                     } else {
-                        Toast.makeText(
-                            requireContext(), "Google Maps not installed", Toast.LENGTH_SHORT
+                        Snackbar.make(
+                            requireView(), "Google Maps not installed", Snackbar.LENGTH_SHORT
                         ).show()
                     }
                 } else {
-                    Toast.makeText(requireContext(), "Location not available", Toast.LENGTH_SHORT)
+                    Snackbar.make(requireView(), "Location not available", Snackbar.LENGTH_SHORT)
                         .show()
                 }
             }
@@ -292,26 +289,25 @@ class NewReminderFragment : Fragment() {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 getCurrentLocation()
             } else {
-                Toast.makeText(requireContext(), "Location permission denied", Toast.LENGTH_SHORT)
-                    .show()
+                Snackbar.make(requireView(), "Permission denied", Snackbar.LENGTH_SHORT).show()
             }
         }
     }
 
-    // Helper function to clear the task input form
     private fun clearForm() {
         binding.titleInput.text.clear()
         binding.notesInput.text.clear()
+        binding.dateDisplay.text = ""
+        binding.timeDisplay.text = ""
+        binding.flagSwitch.isChecked = false
+        binding.locationSwitch.isChecked = false
         selectedDate = null
         selectedTime = null
-        isFlagged = false
         selectedLocation = null
-        binding.locationSwitch.isChecked = false
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 }

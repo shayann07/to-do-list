@@ -58,7 +58,6 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.firebase.firestore)
     implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.lottie)
     implementation(libs.recyclerview)
     implementation (libs.androidx.room.runtime)
     implementation ("com.google.android.gms:play-services-location:21.3.0")

@@ -5,11 +5,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
 import com.shayan.reminderstdl.R
 import com.shayan.reminderstdl.databinding.FragmentLoginBinding
 import com.shayan.reminderstdl.ui.viewmodels.ViewModel
@@ -50,13 +50,14 @@ class LoginFragment : Fragment() {
         viewModel.login(email, password, onSuccess = { user ->
             saveUserEmailToPrefs(requireContext(), email)
 
-            Toast.makeText(
-                requireContext(), "Welcome, ${user.firstName ?: "User"}!", Toast.LENGTH_SHORT
+            Snackbar.make(
+                requireView(), "Welcome, ${user.firstName ?: "User"}!", Snackbar.LENGTH_SHORT
             ).show()
+
             val navOptions = NavOptions.Builder().setPopUpTo(R.id.nav_graph, true).build()
             findNavController().navigate(R.id.loginFragment_to_homeFragment, null, navOptions)
         }, onError = { errorMessage ->
-            Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
+            Snackbar.make(requireView(), errorMessage, Snackbar.LENGTH_SHORT).show()
         })
     }
 
@@ -64,7 +65,6 @@ class LoginFragment : Fragment() {
         val sharedPreferences = context.getSharedPreferences("PrefsDatabase", Context.MODE_PRIVATE)
         sharedPreferences.edit().putString("userEmail", email).apply()
     }
-
 
     private fun validateInput(phone: String, password: String): Boolean {
         return when {
@@ -83,7 +83,7 @@ class LoginFragment : Fragment() {
     }
 
     private fun showError(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+        Snackbar.make(requireView(), message, Snackbar.LENGTH_SHORT).show()
     }
 
     override fun onDestroyView() {

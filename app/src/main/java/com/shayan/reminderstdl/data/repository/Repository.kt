@@ -20,8 +20,21 @@ class Repository(context: Context) {
     suspend fun registerUser(user: User, password: String): Result<Unit> {
         return try {
             auth.createUserWithEmailAndPassword(user.email, password).await()
-            saveUserLocally(user)
-            Result.success(Unit)
+
+            val firebaseUser = auth.currentUser
+
+            if (firebaseUser != null) {
+                val userMap = mapOf(
+                    "firstName" to user.firstName,
+                    "lastName" to user.lastName,
+                    "email" to user.email
+                )
+                database.collection("Users").document(firebaseUser.uid).set(userMap).await()
+                saveUserLocally(user)
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Firebase user creation failed"))
+            }
         } catch (e: Exception) {
             Result.failure(Exception("Registration failed: ${e.localizedMessage}"))
         }
@@ -30,11 +43,29 @@ class Repository(context: Context) {
     suspend fun loginUser(email: String, password: String): Result<User> {
         return try {
             auth.signInWithEmailAndPassword(email, password).await()
-            val localUser = getLocalUser(email)
-            if (localUser != null) {
-                Result.success(localUser)
+            val firebaseUser = auth.currentUser
+
+            if (firebaseUser != null) {
+                val localUser = getLocalUser(email)
+                if (localUser != null) {
+                    Result.success(localUser)
+                } else {
+                    val userSnapshot =
+                        database.collection("Users").document(firebaseUser.uid).get().await()
+                    if (userSnapshot.exists()) {
+                        val fetchedUser = User(
+                            email = email,
+                            firstName = userSnapshot.getString("firstName"),
+                            lastName = userSnapshot.getString("lastName")
+                        )
+                        saveUserLocally(fetchedUser)
+                        Result.success(fetchedUser)
+                    } else {
+                        Result.failure(Exception("User not found in Firebase"))
+                    }
+                }
             } else {
-                Result.failure(Exception("User not found locally"))
+                Result.failure(Exception("Firebase authentication failed"))
             }
         } catch (e: Exception) {
             Result.failure(Exception("Login failed: ${e.localizedMessage}"))
