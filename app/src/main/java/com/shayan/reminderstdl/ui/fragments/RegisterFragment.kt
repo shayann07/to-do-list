@@ -1,5 +1,6 @@
 package com.shayan.reminderstdl.ui.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,13 +12,13 @@ import androidx.navigation.fragment.findNavController
 import com.shayan.reminderstdl.R
 import com.shayan.reminderstdl.data.models.User
 import com.shayan.reminderstdl.databinding.FragmentRegisterBinding
-import com.shayan.reminderstdl.ui.viewmodels.AuthViewModel
+import com.shayan.reminderstdl.ui.viewmodels.ViewModel
 
 class RegisterFragment : Fragment() {
 
     private var _binding: FragmentRegisterBinding? = null
     private val binding get() = _binding!!
-    private val authViewModel: AuthViewModel by activityViewModels()
+    private val viewModel: ViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -38,31 +39,32 @@ class RegisterFragment : Fragment() {
         }
 
         binding.signupButton.setOnClickListener {
-            val phone = binding.phoneEditText.text.toString().trim()
+            val email = binding.emailEditText.text.toString().trim()
             val password = binding.passwordEditText.text.toString().trim()
             val confirmPassword = binding.confirmPasswordEditText.text.toString().trim()
             val firstName = binding.firstName.text.toString().trim()
             val lastName = binding.lastName.text.toString().trim()
 
-            if (validateInput(phone, password, confirmPassword, firstName, lastName)) {
-                val user =
-                    User(phone = phone, password = password, firstName = firstName, lastName = lastName)
-                registerUser(user)
+            if (validateInput(email, password, confirmPassword, firstName, lastName)) {
+                val user = User(
+                    email = email, firstName = firstName, lastName = lastName
+                )
+                registerUser(user, password)
             }
         }
 
     }
 
     private fun validateInput(
-        phone: String,
+        email: String,
         password: String,
         confirmPassword: String,
         firstName: String,
         lastName: String
     ): Boolean {
         return when {
-            phone.isEmpty() -> {
-                showError("Phone number cannot be empty")
+            email.isEmpty() -> {
+                showError("Email cannot be empty")
                 false
             }
 
@@ -95,14 +97,22 @@ class RegisterFragment : Fragment() {
         }
     }
 
-    private fun registerUser(user: User) {
-        authViewModel.register(user, onSuccess = {
+    private fun registerUser(user: User, password: String) {
+        viewModel.register(user, password, onSuccess = {
+            saveUserEmailToPrefs(requireContext(), user.email)
+
             Toast.makeText(requireContext(), "Registration successful!", Toast.LENGTH_SHORT).show()
             findNavController().navigate(R.id.registerFragment_to_loginFragment)
         }, onError = { errorMessage ->
             Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
         })
     }
+
+    private fun saveUserEmailToPrefs(context: Context, email: String) {
+        val sharedPreferences = context.getSharedPreferences("PrefsDatabase", Context.MODE_PRIVATE)
+        sharedPreferences.edit().putString("userEmail", email).apply()
+    }
+
 
     private fun showError(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()

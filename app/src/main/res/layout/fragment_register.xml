@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/black">
@@ -126,14 +125,14 @@
 
 
             <EditText
-                android:id="@+id/phoneEditText"
+                android:id="@+id/emailEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="45dp"
                 android:layout_marginTop="16dp"
                 android:background="@drawable/textview_roundedcorners"
-                android:hint="@string/phone_number"
-                android:inputType="phone"
+                android:hint="@string/email"
+                android:inputType="textEmailAddress"
                 android:padding="12dp"
                 android:textColor="#B3B2B8"
                 android:textColorHint="#A9A9A9"

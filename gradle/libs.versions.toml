@@ -18,6 +18,7 @@ junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 googleGmsGoogleServices = "4.4.2"
 roomRuntime = "2.6.1"
+firebaseAuth = "23.1.0"
 
 
 [libraries]
@@ -42,6 +43,7 @@ recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "r
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
 
 
 [plugins]

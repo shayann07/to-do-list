@@ -1,5 +1,6 @@
 package com.shayan.reminderstdl.ui.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,13 +12,13 @@ import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.shayan.reminderstdl.R
 import com.shayan.reminderstdl.databinding.FragmentLoginBinding
-import com.shayan.reminderstdl.ui.viewmodels.AuthViewModel
+import com.shayan.reminderstdl.ui.viewmodels.ViewModel
 
 class LoginFragment : Fragment() {
 
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
-    private val authViewModel: AuthViewModel by activityViewModels()
+    private val viewModel: ViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -31,7 +32,7 @@ class LoginFragment : Fragment() {
 
         // Handle login button click
         binding.loginButton.setOnClickListener {
-            val phone = binding.phoneEditText.text.toString().trim()
+            val phone = binding.emailEditText.text.toString().trim()
             val password = binding.passwordEditText.text.toString().trim()
 
             if (validateInput(phone, password)) {
@@ -45,23 +46,25 @@ class LoginFragment : Fragment() {
         }
     }
 
-    private fun loginUser(phone: String, password: String) {
-        authViewModel.login(phone, password, onSuccess = { user ->
+    private fun loginUser(email: String, password: String) {
+        viewModel.login(email, password, onSuccess = { user ->
+            saveUserEmailToPrefs(requireContext(), email)
+
             Toast.makeText(
                 requireContext(), "Welcome, ${user.firstName ?: "User"}!", Toast.LENGTH_SHORT
             ).show()
-            val navOptions = NavOptions.Builder().setPopUpTo(
-                R.id.nav_graph, true
-            )  // Set to pop the login fragment from the back stack
-                .build()
-
+            val navOptions = NavOptions.Builder().setPopUpTo(R.id.nav_graph, true).build()
             findNavController().navigate(R.id.loginFragment_to_homeFragment, null, navOptions)
-
-
         }, onError = { errorMessage ->
             Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
         })
     }
+
+    private fun saveUserEmailToPrefs(context: Context, email: String) {
+        val sharedPreferences = context.getSharedPreferences("PrefsDatabase", Context.MODE_PRIVATE)
+        sharedPreferences.edit().putString("userEmail", email).apply()
+    }
+
 
     private fun validateInput(phone: String, password: String): Boolean {
         return when {
