@@ -1,3 +1,5 @@
+import com.android.build.gradle.ProguardFiles.getDefaultProguardFile
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -61,6 +63,7 @@ dependencies {
     implementation (libs.androidx.room.runtime)
     implementation ("com.google.android.gms:play-services-location:21.3.0")
     implementation(libs.androidx.room.ktx)
+    implementation(libs.firebase.auth)
     ksp (libs.androidx.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

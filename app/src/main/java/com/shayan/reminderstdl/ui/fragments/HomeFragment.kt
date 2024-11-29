@@ -1,6 +1,5 @@
 package com.shayan.reminderstdl.ui.fragments
 
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -8,9 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.PopupMenu
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.google.firebase.auth.FirebaseAuth
 import com.shayan.reminderstdl.R
 import com.shayan.reminderstdl.databinding.FragmentHomeBinding
 import kotlin.reflect.KMutableProperty0
@@ -19,9 +18,9 @@ class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-    private lateinit var sharedPreferences: SharedPreferences
     private var isArrowDownICloud = true
     private var isArrowDownOutlook = true
+    private lateinit var firebaseAuth: FirebaseAuth
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -31,12 +30,10 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        sharedPreferences =
-            requireActivity().getSharedPreferences("PrefsDatabase", AppCompatActivity.MODE_PRIVATE)
+        firebaseAuth = FirebaseAuth.getInstance()
 
         // Set up menu for log-out functionality
         binding.menuImageView.setOnClickListener { showPopupMenu() }
@@ -49,7 +46,7 @@ class HomeFragment : Fragment() {
             toggleVisibility(binding.outlookContainer, ::isArrowDownOutlook)
         }
 
-        binding.newReminderButton.setOnClickListener{
+        binding.newReminderButton.setOnClickListener {
             findNavController().navigate(R.id.homeFragment_to_newReminderFragment)
         }
     }
@@ -65,10 +62,14 @@ class HomeFragment : Fragment() {
     private fun handleMenuItemClick(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.log_out -> {
-                sharedPreferences.edit().clear().apply()
+                // Sign out the user using Firebase Authentication
+                firebaseAuth.signOut()
+
+                // Navigate back to the login screen
                 findNavController().navigate(R.id.homeFragment_to_loginFragment)
                 true
             }
+
             else -> false
         }
     }
@@ -77,7 +78,6 @@ class HomeFragment : Fragment() {
         container.visibility = if (arrowState.get()) View.GONE else View.VISIBLE
         arrowState.set(!arrowState.get())
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()

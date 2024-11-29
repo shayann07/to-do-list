@@ -20,11 +20,11 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.location.*
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
 import com.shayan.reminderstdl.R
 import com.shayan.reminderstdl.data.models.Tasks
 import com.shayan.reminderstdl.databinding.FragmentNewReminderBinding
-import com.shayan.reminderstdl.ui.viewmodels.AuthViewModel
-import com.shayan.reminderstdl.ui.viewmodels.TaskViewModel
+import com.shayan.reminderstdl.ui.viewmodels.ViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -32,8 +32,7 @@ class NewReminderFragment : Fragment() {
 
     private var _binding: FragmentNewReminderBinding? = null
     private val binding get() = _binding!!
-    private val authViewModel: AuthViewModel by viewModels()
-    private val taskViewModel: TaskViewModel by viewModels()
+    private val viewModel: ViewModel by viewModels()
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private val LOCATION_PERMISSION_REQUEST_CODE = 1001
@@ -41,7 +40,7 @@ class NewReminderFragment : Fragment() {
     private var selectedTime: String? = null
     private var isFlagged: Boolean = false
     private var selectedLocation: String? = null
-    private var userPhone: String? = null
+    private var uid: String? = null
 
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
@@ -68,52 +67,51 @@ class NewReminderFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        authViewModel.fetchLocalUser(userPhone ?: "") { user ->
-            userPhone = user?.phone
-
-            if (userPhone == null) {
-                // Show a message or handle the case when the user is not found
-                Snackbar.make(binding.root, "User phone not found", Snackbar.LENGTH_SHORT).show()
-                return@fetchLocalUser
-            }
-
-            // Only enable the "addTaskButton" after the phone is fetched
-            binding.addTaskButton.setOnClickListener {
-                val title = binding.titleInput.text.toString().trim()
-                val notes = binding.notesInput.text.toString().trim()
-
-                if (title.isNotEmpty()) {
-                    val task = Tasks(
-                        title = title,
-                        notes = notes,
-                        date = selectedDate,
-                        time = selectedTime,
-                        flag = isFlagged,
-                        location = if (binding.locationSwitch.isChecked) selectedLocation else null
-                    )
-                    taskViewModel.saveTask(userPhone!!, task)
-                } else {
-                    Snackbar.make(binding.root, "At least, enter a title", Snackbar.LENGTH_SHORT)
-                        .show()
-                }
-            }
-        }
-
-
         binding.cancelButton.setOnClickListener {
-            clearForm()
             findNavController().navigate(R.id.newReminderFragment_to_homeFragment)
         }
 
+        // Retrieve the UID from FirebaseAuth
+        uid = FirebaseAuth.getInstance().currentUser?.uid
+
+        if (uid.isNullOrEmpty()) {
+            Snackbar.make(binding.root, "User not logged in", Snackbar.LENGTH_SHORT).show()
+            return
+        }
+
+        // Enable the "addTaskButton" after successful UID fetch
+        binding.addTaskButton.setOnClickListener {
+            val title = binding.titleInput.text.toString().trim()
+            val notes = binding.notesInput.text.toString().trim()
+
+            if (title.isNotEmpty()) {
+                val task = Tasks(
+                    title = title,
+                    notes = notes,
+                    date = selectedDate,
+                    time = selectedTime,
+                    flag = isFlagged,
+                    location = if (binding.locationSwitch.isChecked) selectedLocation else null
+                )
+                // Save the task under the specific user's UID
+                viewModel.saveTask(uid!!, task)
+            } else {
+                Snackbar.make(binding.root, "At least, enter a title", Snackbar.LENGTH_SHORT).show()
+            }
+        }
+
+        // Setup other views and functionality
         setupDateSwitch()
         setupTimeSwitch()
         setupFlagSwitch()
         setupLocationSwitch()
         setupLocationIconClick()
 
+        // Initialize FusedLocationProviderClient
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
 
-        taskViewModel.taskCreationStatus.observe(viewLifecycleOwner, { isSuccess ->
+        // Observe task creation status
+        viewModel.taskCreationStatus.observe(viewLifecycleOwner, { isSuccess ->
             if (isSuccess) {
                 Toast.makeText(requireContext(), "Task created successfully", Toast.LENGTH_SHORT)
                     .show()
@@ -124,7 +122,6 @@ class NewReminderFragment : Fragment() {
             }
         })
     }
-
 
     private fun setupDateSwitch() {
         binding.dateSwitch.setOnCheckedChangeListener { _, isChecked ->
@@ -301,13 +298,14 @@ class NewReminderFragment : Fragment() {
         }
     }
 
+    // Helper function to clear the task input form
     private fun clearForm() {
-        // Clear the input fields and reset switches
         binding.titleInput.text.clear()
         binding.notesInput.text.clear()
-        binding.dateSwitch.isChecked = false
-        binding.timeSwitch.isChecked = false
-        binding.flagSwitch.isChecked = false
+        selectedDate = null
+        selectedTime = null
+        isFlagged = false
+        selectedLocation = null
         binding.locationSwitch.isChecked = false
     }
 
