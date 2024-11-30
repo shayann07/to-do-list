@@ -76,6 +76,15 @@ class Repository(context: Context) {
     suspend fun saveTasksToFirebase(uid: String, task: Tasks): Result<Boolean> {
         return try {
             val userTasksRef = database.collection("Users").document(uid).collection("Tasks")
+            val taskMap = mapOf(
+                "title" to task.title,
+                "notes" to task.notes,
+                "date" to task.date,
+                "time" to task.time,
+                "timeCategory" to task.timeCategory,  // Added timeCategory
+                "location" to task.location,
+                "flag" to task.flag
+            )
             userTasksRef.add(task).await()
             Result.success(true)
         } catch (e: Exception) {
@@ -97,6 +106,48 @@ class Repository(context: Context) {
             userDao.insertUser(user)
         }
     }
+
+    suspend fun fetchTasksFromFirebase(uid: String): Result<List<Tasks>> {
+
+        return try {
+            val tasksSnapshot =
+                database.collection("Users").document(uid).collection("Tasks").get().await()
+
+            val tasksList = tasksSnapshot.documents.mapNotNull { document ->
+                // Get the title safely, returning null if missing or empty
+                val title = document.getString("title")?.takeIf { it.isNotEmpty() }
+                    ?: return@mapNotNull null  // Skip this task if title is empty or missing
+
+                val notes = document.getString("notes")
+                val date = document.getString("date")
+                val time =
+                    document.getString("time")?.takeIf { it.isNotEmpty() } ?: return@mapNotNull null
+                val location = document.getString("location")
+                val flag = document.getBoolean("flag") ?: false
+                val timeCategory = document.getString("timeCategory")  // Retrieve timeCategory
+
+                Tasks(
+                    title = title,
+                    notes = notes,
+                    date = date,
+                    time = time,
+                    timeCategory = timeCategory,  // Populate timeCategory
+                    location = location,
+                    flag = flag
+                )
+
+            }
+
+            if (tasksList.isNotEmpty()) {
+                Result.success(tasksList)
+            } else {
+                Result.failure(Exception("No valid tasks found"))
+            }
+        } catch (e: Exception) {
+            Result.failure(Exception("Failed to fetch tasks: ${e.localizedMessage}"))
+        }
+    }
+
 
     suspend fun getLocalUser(email: String): User? {
         return withContext(Dispatchers.IO) {

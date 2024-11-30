@@ -110,6 +110,7 @@
                     app:strokeWidth="0dp">
 
                     <RelativeLayout
+                        android:id="@+id/today_screen"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="4dp">

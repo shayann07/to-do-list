@@ -48,4 +48,7 @@
     <string name="time">Time</string>
     <string name="flag">Flag</string>
     <string name="location">Location</string>
+    <string name="morning">Morning</string>
+    <string name="afternoon">Afternoon</string>
+    <string name="tonight">Tonight</string>
 </resources>

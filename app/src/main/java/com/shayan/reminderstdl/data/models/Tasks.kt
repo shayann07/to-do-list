@@ -10,6 +10,7 @@ data class Tasks(
     val notes: String? = null,
     val date: String? = null,
     val time: String? = null,
+    val timeCategory: String? = null,
     val location: String? = null,
     val flag: Boolean = false
 )

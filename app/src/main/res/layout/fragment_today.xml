@@ -22,61 +22,88 @@
         android:textStyle="bold"
         app:drawableStartCompat="@drawable/arrow_left" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:fontFamily="@font/roboto_bold"
-        android:padding="8dp"
-        android:text="@string/today"
-        android:textColor="@color/light_blue"
-        android:textSize="24sp"
-        android:textStyle="bold" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="8dp"
-        android:orientation="vertical"
-        android:padding="8dp">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:gravity="start"
-            android:text="@string/name"
-            android:textColor="#B3B2B8"
-            android:textSize="16dp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:gravity="start"
-            android:text="@string/email"
-            android:textColor="#B3B2B8"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:gravity="start"
-            android:text="@string/password"
-            android:textColor="#B3B2B8"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-    </LinearLayout>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/userRecylerView"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="20dp" />
+        android:background="@color/black">
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/today_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:fontFamily="@font/roboto_bold"
+                android:padding="8dp"
+                android:text="@string/today"
+                android:textColor="@color/light_blue"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/today_text"
+                android:layout_marginHorizontal="16dp"
+                android:orientation="vertical"
+                android:padding="8dp">
+
+                <!-- Morning Section -->
+                <TextView
+                    android:id="@+id/text_morning"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/roboto_bold"
+                    android:paddingBottom="8dp"
+                    android:text="@string/morning"
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="18sp" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_morning"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:visibility="gone" />
+
+                <!-- Afternoon Section -->
+                <TextView
+                    android:id="@+id/text_afternoon"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/roboto_bold"
+                    android:paddingBottom="8dp"
+                    android:text="@string/afternoon"
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="18sp" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_afternoon"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:visibility="gone" />
+
+                <!-- Tonight Section -->
+                <TextView
+                    android:id="@+id/text_tonight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/roboto_bold"
+                    android:paddingBottom="8dp"
+                    android:text="@string/tonight"
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="18sp" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_tonight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </RelativeLayout>
+    </ScrollView>
 </LinearLayout>

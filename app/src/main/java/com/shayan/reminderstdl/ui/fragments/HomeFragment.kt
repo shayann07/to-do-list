@@ -8,17 +8,21 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.PopupMenu
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.shayan.reminderstdl.R
 import com.shayan.reminderstdl.databinding.FragmentHomeBinding
+import com.shayan.reminderstdl.ui.viewmodels.ViewModel
 import kotlin.reflect.KMutableProperty0
 
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
+
+    private lateinit var viewModel: ViewModel
     private var isArrowDownICloud = true
     private var isArrowDownOutlook = true
     private lateinit var firebaseAuth: FirebaseAuth
@@ -35,6 +39,16 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         firebaseAuth = FirebaseAuth.getInstance()
+
+        viewModel = ViewModelProvider(requireActivity())[ViewModel::class.java]
+
+        viewModel.todayTaskCount.observe(viewLifecycleOwner) { count ->
+            binding.todayCount.text = "$count"
+        }
+
+        binding.todayScreen.setOnClickListener {
+            findNavController().navigate(R.id.homeFragment_to_todayFragment)
+        }
 
         // Set up menu for log-out functionality
         binding.menuImageView.setOnClickListener { showPopupMenu() }
