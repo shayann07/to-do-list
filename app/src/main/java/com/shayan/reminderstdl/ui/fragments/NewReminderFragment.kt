@@ -35,30 +35,16 @@ class NewReminderFragment : Fragment() {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private val LOCATION_PERMISSION_REQUEST_CODE = 1001
+
     private var selectedDate: String? = null
     private var selectedTime: String? = null
     private var isFlagged: Boolean = false
     private var selectedLocation: String? = null
     private var uid: String? = null
 
-    private val locationCallback = object : LocationCallback() {
-        override fun onLocationResult(locationResult: LocationResult) {
-            val location = locationResult.lastLocation
-            if (location != null) {
-                binding.currentLocationIcon.visibility = View.VISIBLE
-                selectedLocation = "${location.latitude}, ${location.longitude}"
-                fusedLocationClient.removeLocationUpdates(this)
-            } else {
-                Snackbar.make(
-                    binding.root, "Unable to fetch new location data", Snackbar.LENGTH_SHORT
-                ).show()
-            }
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentNewReminderBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -66,95 +52,72 @@ class NewReminderFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.cancelButton.setOnClickListener {
-            findNavController().navigate(R.id.newReminderFragment_to_homeFragment)
-        }
+        initializeComponents()
+        initializeObservers()
+    }
 
-        // Retrieve the UID from FirebaseAuth
+    /**
+     * Initialize UI components and set up event listeners.
+     */
+    private fun initializeComponents() {
         uid = FirebaseAuth.getInstance().currentUser?.uid
-
         if (uid.isNullOrEmpty()) {
-            Snackbar.make(binding.root, "User not logged in", Snackbar.LENGTH_SHORT).show()
+            showSnackbar("User not logged in")
             return
         }
 
-        // Enable the "addTaskButton" after successful UID fetch
-        binding.addTaskButton.setOnClickListener {
-            val title = binding.titleInput.text.toString().trim()
-            val notes = binding.notesInput.text.toString().trim()
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
 
-            if (title.isNotEmpty()) {
-                val task = Tasks(
-                    title = title,
-                    notes = notes,
-                    date = selectedDate,
-                    time = selectedTime,
-                    flag = isFlagged,
-                    location = if (binding.locationSwitch.isChecked) selectedLocation else null
-                )
-                // Save the task under the specific user's UID
-                viewModel.saveTask(uid!!, task)
-            } else {
-                Snackbar.make(binding.root, "At least, enter a title", Snackbar.LENGTH_SHORT).show()
-            }
-        }
-
-        // Setup other views and functionality
+        binding.cancelButton.setOnClickListener { navigateToHome() }
+        binding.addTaskButton.setOnClickListener { handleAddTask() }
         setupDateSwitch()
         setupTimeSwitch()
         setupFlagSwitch()
         setupLocationSwitch()
         setupLocationIconClick()
+    }
 
-        // Initialize FusedLocationProviderClient
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
-
-        // Observe task creation status
-        viewModel.taskCreationStatus.observe(viewLifecycleOwner, { isSuccess ->
+    /**
+     * Observe LiveData from the ViewModel.
+     */
+    private fun initializeObservers() {
+        viewModel.taskCreationStatus.observe(viewLifecycleOwner) { isSuccess ->
             if (isSuccess) {
-                Snackbar.make(requireView(), "Task created successfully", Snackbar.LENGTH_SHORT)
-                    .show()
+                showSnackbar("Task created successfully")
                 clearForm()
-                findNavController().navigate(R.id.newReminderFragment_to_homeFragment)
+                navigateToHome()
             } else {
-                Snackbar.make(requireView(), "Task creation failed", Snackbar.LENGTH_SHORT).show()
+                showSnackbar("Failed to create task. Try again.")
             }
-        })
+        }
     }
 
     private fun setupDateSwitch() {
         binding.dateSwitch.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                binding.calendarContainer.visibility = View.VISIBLE
-                Snackbar.make(requireView(), "Date picker visible", Snackbar.LENGTH_SHORT).show()
-            } else {
-                binding.calendarContainer.visibility = View.GONE
-                selectedDate = null
-//                Snackbar.make(requireView(), "Date selection cleared", Snackbar.LENGTH_SHORT).show()
-            }
+            binding.calendarContainer.visibility = if (isChecked) View.VISIBLE else View.GONE
+            if (!isChecked) selectedDate = null
         }
 
         binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-            val calendar = Calendar.getInstance()
-            calendar.set(year, month, dayOfMonth)
-
+            val calendar = Calendar.getInstance().apply { set(year, month, dayOfMonth) }
             selectedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
-            // Update UI and show Snackbar with the selected date
             binding.dateDisplay.text = selectedDate
-            Snackbar.make(requireView(), "Selected date: $selectedDate", Snackbar.LENGTH_SHORT)
-                .show()
+            showSnackbar("Selected date: $selectedDate")
         }
     }
 
     private fun setupTimeSwitch() {
         binding.timeSwitch.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                showTimePicker()
-            } else {
-                binding.timeDisplay.text = ""
-                selectedTime = null
-//                Snackbar.make(requireView(), "Time selection cleared", Snackbar.LENGTH_SHORT).show()
-            }
+            if (isChecked) showTimePicker() else clearTimeSelection()
+        }
+    }
+
+    private fun determineTimeCategory(hour: Int): String {
+        return when (hour) {
+            in 5..11 -> "morning"
+            in 12..17 -> "afternoon"
+            in 18..23, in 0..4 -> "tonight"
+            else -> "unknown"
         }
     }
 
@@ -163,135 +126,110 @@ class NewReminderFragment : Fragment() {
         val hour = calendar.get(Calendar.HOUR_OF_DAY)
         val minute = calendar.get(Calendar.MINUTE)
 
-        val timePickerDialog = TimePickerDialog(
+        TimePickerDialog(
             requireContext(), { _, selectedHour, selectedMinute ->
                 selectedTime = String.format("%02d:%02d", selectedHour, selectedMinute)
                 binding.timeDisplay.text = selectedTime
-                Snackbar.make(requireView(), "Selected time: $selectedTime", Snackbar.LENGTH_SHORT)
-                    .show()
-            }, hour, minute, true // 24-hour format
-        )
-        timePickerDialog.show()
+
+                val timeCategory = determineTimeCategory(selectedHour)
+                showSnackbar("Selected time: $selectedTime($timeCategory)")
+            }, hour, minute, true
+        ).show()
     }
 
     private fun setupFlagSwitch() {
         binding.flagSwitch.setOnCheckedChangeListener { _, isChecked ->
             isFlagged = isChecked
-//            Snackbar.make(
-//                requireView(),
-//                if (isChecked) "Reminder flagged" else "Reminder unflagged",
-//                Snackbar.LENGTH_SHORT
-//            ).show()
         }
     }
 
     private fun setupLocationSwitch() {
         binding.locationSwitch.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                handleLocationSwitch()
-            } else {
-                binding.currentLocationIcon.visibility = View.GONE
-                selectedLocation = null
-//                Snackbar.make(requireView(), "Location cleared", Snackbar.LENGTH_SHORT).show()
-            }
+            if (isChecked) handleLocationSwitch() else clearLocationSelection()
         }
-    }
-
-    private fun handleLocationSwitch() {
-        if (ContextCompat.checkSelfPermission(
-                requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            getCurrentLocation()
-        } else {
-            requestPermissions(
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_REQUEST_CODE
-            )
-        }
-    }
-
-    private fun getCurrentLocation() {
-        try {
-            if (isLocationEnabled()) {
-                fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                    if (location != null) {
-                        binding.currentLocationIcon.visibility = View.VISIBLE
-                        selectedLocation = "${location.latitude}, ${location.longitude}"
-                    } else {
-                        requestNewLocationData()
-                    }
-                }.addOnFailureListener {
-                    Snackbar.make(
-                        requireView(), "Failed to retrieve location", Snackbar.LENGTH_SHORT
-                    ).show()
-                }
-            } else {
-                Snackbar.make(requireView(), "Enable location services", Snackbar.LENGTH_SHORT)
-                    .show()
-            }
-        } catch (e: SecurityException) {
-            Snackbar.make(requireView(), "Permission denied", Snackbar.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun requestNewLocationData() {
-        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000)
-            .setWaitForAccurateLocation(true).build()
-
-        if (ActivityCompat.checkSelfPermission(
-                requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            return
-        }
-
-        fusedLocationClient.requestLocationUpdates(
-            locationRequest, locationCallback, Looper.getMainLooper()
-        )
     }
 
     private fun setupLocationIconClick() {
         binding.currentLocationIcon.setOnClickListener {
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                if (location != null) {
-                    val uri = Uri.parse("geo:${location.latitude},${location.longitude}")
-                    val intent = Intent(Intent.ACTION_VIEW, uri).apply {
-                        setPackage("com.google.android.apps.maps")
-                    }
-                    if (intent.resolveActivity(requireActivity().packageManager) != null) {
-                        startActivity(intent)
-                    } else {
-                        Snackbar.make(
-                            requireView(), "Google Maps not installed", Snackbar.LENGTH_SHORT
-                        ).show()
-                    }
-                } else {
-                    Snackbar.make(requireView(), "Location not available", Snackbar.LENGTH_SHORT)
-                        .show()
-                }
+                location?.let {
+                    openGoogleMaps(it.latitude, it.longitude)
+                } ?: showSnackbar("Location not available")
             }
         }
     }
 
-    private fun isLocationEnabled(): Boolean {
-        val locationManager =
-            requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
-            LocationManager.NETWORK_PROVIDER
+    private fun handleAddTask() {
+        val title = binding.titleInput.text.toString().trim()
+        val notes = binding.notesInput.text.toString().trim()
+
+        if (title.isEmpty()) {
+            showSnackbar("Title is required.")
+            return
+        }
+
+        val task = Tasks(
+            title = title,
+            notes = notes,
+            date = selectedDate,
+            time = selectedTime,
+            timeCategory = determineTimeCategory(Calendar.getInstance().get(Calendar.HOUR_OF_DAY)),
+            flag = isFlagged,
+            location = if (binding.locationSwitch.isChecked) selectedLocation else null
         )
+
+        viewModel.saveTask(uid!!, task)
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                getCurrentLocation()
-            } else {
-                Snackbar.make(requireView(), "Permission denied", Snackbar.LENGTH_SHORT).show()
-            }
+    private fun handleLocationSwitch() {
+        if (isLocationPermissionGranted()) {
+            getCurrentLocation()
+        } else {
+            requestLocationPermission()
         }
+    }
+
+    private fun getCurrentLocation() {
+        if (isLocationEnabled()) {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                location?.let {
+                    selectedLocation = "${it.latitude}, ${it.longitude}"
+                    binding.currentLocationIcon.visibility = View.VISIBLE
+                } ?: requestNewLocationData()
+            }
+        } else {
+            showSnackbar("Please enable location services.")
+        }
+    }
+
+    private fun requestNewLocationData() {
+        val locationRequest =
+            LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000).build()
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            fusedLocationClient.requestLocationUpdates(
+                locationRequest, object : LocationCallback() {
+                    override fun onLocationResult(locationResult: LocationResult) {
+                        locationResult.lastLocation?.let {
+                            selectedLocation = "${it.latitude}, ${it.longitude}"
+                            binding.currentLocationIcon.visibility = View.VISIBLE
+                        }
+                    }
+                }, Looper.getMainLooper()
+            )
+        }
+    }
+
+    private fun isLocationPermissionGranted() = ContextCompat.checkSelfPermission(
+        requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
+    ) == PackageManager.PERMISSION_GRANTED
+
+    private fun requestLocationPermission() {
+        requestPermissions(
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_REQUEST_CODE
+        )
     }
 
     private fun clearForm() {
@@ -304,6 +242,44 @@ class NewReminderFragment : Fragment() {
         selectedDate = null
         selectedTime = null
         selectedLocation = null
+    }
+
+    private fun clearTimeSelection() {
+        binding.timeDisplay.text = ""
+        selectedTime = null
+    }
+
+    private fun clearLocationSelection() {
+        binding.currentLocationIcon.visibility = View.GONE
+        selectedLocation = null
+    }
+
+    private fun isLocationEnabled(): Boolean {
+        val locationManager =
+            requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
+            LocationManager.NETWORK_PROVIDER
+        )
+    }
+
+    private fun openGoogleMaps(latitude: Double, longitude: Double) {
+        val uri = Uri.parse("geo:$latitude,$longitude")
+        val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+            setPackage("com.google.android.apps.maps")
+        }
+        if (intent.resolveActivity(requireActivity().packageManager) != null) {
+            startActivity(intent)
+        } else {
+            showSnackbar("Google Maps is not installed.")
+        }
+    }
+
+    private fun showSnackbar(message: String) {
+        Snackbar.make(requireView(), message, Snackbar.LENGTH_SHORT).show()
+    }
+
+    private fun navigateToHome() {
+        findNavController().navigate(R.id.newReminderFragment_to_homeFragment)
     }
 
     override fun onDestroyView() {

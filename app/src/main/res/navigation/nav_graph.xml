@@ -52,6 +52,9 @@
         <action
             android:id="@+id/homeFragment_to_newReminderFragment"
             app:destination="@id/newReminderFragment" />
+        <action
+            android:id="@+id/homeFragment_to_todayFragment"
+            app:destination="@+id/todayFragment" />
     </fragment>
 
     <fragment
@@ -64,4 +67,13 @@
 
     </fragment>
 
+    <fragment
+        android:id="@+id/todayFragment"
+        android:name="com.shayan.reminderstdl.ui.fragments.TodayFragment"
+        android:label="Today">
+        <action
+            android:id="@+id/todayFragment_to_homeFragment"
+            app:destination="@+id/homeFragment" />
+
+    </fragment>
 </navigation>
