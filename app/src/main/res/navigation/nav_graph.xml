@@ -93,6 +93,9 @@
         <action
             android:id="@+id/todayFragment_to_homeFragment"
             app:destination="@+id/homeFragment" />
+        <action
+            android:id="@+id/todayFragment_to_newReminderFragment"
+            app:destination="@id/newReminderFragment" />
 
     </fragment>
 

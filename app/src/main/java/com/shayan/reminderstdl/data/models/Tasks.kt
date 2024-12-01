@@ -12,5 +12,5 @@ data class Tasks(
     val time: String? = null,
     val timeCategory: String? = null,
     val location: String? = null,
-    val flag: Boolean = false,
+    val flag: Boolean = false
 )

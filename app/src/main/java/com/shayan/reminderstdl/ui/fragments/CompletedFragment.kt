@@ -27,9 +27,5 @@ class CompletedFragment : Fragment() {
             findNavController().navigate(R.id.completedFragment_to_homeFragment)
 
         }
-
-
     }
-
-
 }
