@@ -49,6 +49,24 @@ class HomeFragment : Fragment() {
         binding.todayScreen.setOnClickListener {
             findNavController().navigate(R.id.homeFragment_to_todayFragment)
         }
+        binding.scheduledScreen.setOnClickListener {
+            findNavController().navigate(R.id.homeFragment_to_scheduledFragment)
+        }
+        binding.allScreen.setOnClickListener {
+            findNavController().navigate(R.id.homeFragment_to_allFragment)
+        }
+        binding.flaggedScreen.setOnClickListener {
+            findNavController().navigate(R.id.homeFragment_to_flaggedFragment)
+        }
+        binding.completedScreen.setOnClickListener {
+            findNavController().navigate(R.id.homeFragment_to_completedFragment)
+        }
+        binding.iCloudContainer.setOnClickListener {
+            findNavController().navigate(R.id.homeFragment_to_iCloudFragment)
+        }
+        binding.outlookContainer.setOnClickListener {
+            findNavController().navigate(R.id.homeFragment_to_outlookFragment)
+        }
 
         // Set up menu for log-out functionality
         binding.menuImageView.setOnClickListener { showPopupMenu() }

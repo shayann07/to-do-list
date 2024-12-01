@@ -6,7 +6,7 @@
     android:orientation="horizontal"
     android:padding="16dp">
 
-    <CheckBox
+    <RadioButton
         android:id="@+id/checkbox_reminder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
@@ -22,7 +22,7 @@
             android:id="@+id/fetched_task_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Reminder Title"
+            android:text="@string/reminder_title"
             android:textColor="@android:color/white"
             android:textSize="16sp" />
 
@@ -30,7 +30,7 @@
             android:id="@+id/fetched_task_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="9:00 AM"
+            android:text="@string/_9_00_am"
             android:textColor="@android:color/holo_red_light"
             android:textSize="14sp" />
     </LinearLayout>

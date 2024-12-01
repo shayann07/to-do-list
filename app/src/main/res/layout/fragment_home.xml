@@ -167,6 +167,7 @@
                     app:strokeWidth="0dp">
 
                     <RelativeLayout
+                        android:id="@+id/scheduled_screen"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="4dp">
@@ -223,6 +224,7 @@
                     app:strokeWidth="0dp">
 
                     <RelativeLayout
+                        android:id="@+id/all_screen"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="4dp">
@@ -278,6 +280,7 @@
                     app:strokeWidth="0dp">
 
                     <RelativeLayout
+                        android:id="@+id/flagged_screen"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="4dp">
@@ -334,6 +337,7 @@
                     app:strokeWidth="0dp">
 
                     <RelativeLayout
+                        android:id="@+id/completed_screen"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="4dp">

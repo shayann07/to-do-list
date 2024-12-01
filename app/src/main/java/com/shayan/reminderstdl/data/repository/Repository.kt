@@ -108,41 +108,36 @@ class Repository(context: Context) {
     }
 
     suspend fun fetchTasksFromFirebase(uid: String): Result<List<Tasks>> {
-
         return try {
             val tasksSnapshot =
                 database.collection("Users").document(uid).collection("Tasks").get().await()
 
             val tasksList = tasksSnapshot.documents.mapNotNull { document ->
-                // Get the title safely, returning null if missing or empty
                 val title = document.getString("title")?.takeIf { it.isNotEmpty() }
-                    ?: return@mapNotNull null  // Skip this task if title is empty or missing
-
+                    ?: return@mapNotNull null
                 val notes = document.getString("notes")
                 val date = document.getString("date")
-                val time =
-                    document.getString("time")?.takeIf { it.isNotEmpty() } ?: return@mapNotNull null
+                val time = document.getString("time")
                 val location = document.getString("location")
                 val flag = document.getBoolean("flag") ?: false
-                val timeCategory = document.getString("timeCategory")  // Retrieve timeCategory
+                val timeCategory = document.getString("timeCategory")
 
                 Tasks(
                     title = title,
                     notes = notes,
                     date = date,
                     time = time,
-                    timeCategory = timeCategory,  // Populate timeCategory
+                    timeCategory = timeCategory,
                     location = location,
                     flag = flag
                 )
-
             }
 
-            if (tasksList.isNotEmpty()) {
-                Result.success(tasksList)
-            } else {
-                Result.failure(Exception("No valid tasks found"))
+            tasksList.forEach { task ->
+                taskDao.insertTask(task) // Save to Room
             }
+
+            Result.success(tasksList)
         } catch (e: Exception) {
             Result.failure(Exception("Failed to fetch tasks: ${e.localizedMessage}"))
         }
