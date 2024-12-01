@@ -51,4 +51,8 @@
     <string name="morning">Morning</string>
     <string name="afternoon">Afternoon</string>
     <string name="tonight">Tonight</string>
+    <string name="reminder_title">Reminder Title</string>
+    <string name="_9_00_am">9:00 AM</string>
+    <string name="clear">•   Clear</string>
+    <string name="scheduled">Scheduled</string>
 </resources>

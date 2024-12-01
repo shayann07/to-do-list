@@ -59,32 +59,41 @@ class TodayFragment : Fragment() {
         if (userId != null) {
             viewModel.fetchTasks(userId)
 
-            viewModel.tasksList.observe(viewLifecycleOwner) { tasks ->
-                tasks?.let {
-                    val morningTasks = it.filter { task -> task.timeCategory == "morning" }
-                    val afternoonTasks = it.filter { task -> task.timeCategory == "afternoon" }
-                    val tonightTasks = it.filter { task -> task.timeCategory == "tonight" }
-
+            // Observe morning tasks
+            viewModel.morningTasksLiveData.observe(viewLifecycleOwner) { morningTasks ->
+                if (morningTasks.isEmpty()) {
+                    binding.recyclerMorning.visibility = View.GONE
+                } else {
+                    binding.recyclerMorning.visibility = View.VISIBLE
                     morningAdapter.submitList(morningTasks)
-                    afternoonAdapter.submitList(afternoonTasks)
-                    tonightAdapter.submitList(tonightTasks)
-
-                    // Toggle visibility
-                    binding.recyclerMorning.visibility =
-                        if (morningTasks.isEmpty()) View.GONE else View.VISIBLE
-                    binding.recyclerAfternoon.visibility =
-                        if (afternoonTasks.isEmpty()) View.GONE else View.VISIBLE
-                    binding.recyclerTonight.visibility =
-                        if (tonightTasks.isEmpty()) View.GONE else View.VISIBLE
                 }
             }
 
+            // Observe afternoon tasks
+            viewModel.afternoonTasksLiveData.observe(viewLifecycleOwner) { afternoonTasks ->
+                if (afternoonTasks.isEmpty()) {
+                    binding.recyclerAfternoon.visibility = View.GONE
+                } else {
+                    binding.recyclerAfternoon.visibility = View.VISIBLE
+                    afternoonAdapter.submitList(afternoonTasks)
+                }
+            }
+
+            // Observe tonight tasks
+            viewModel.tonightTasksLiveData.observe(viewLifecycleOwner) { tonightTasks ->
+                if (tonightTasks.isEmpty()) {
+                    binding.recyclerTonight.visibility = View.GONE
+                } else {
+                    binding.recyclerTonight.visibility = View.VISIBLE
+                    tonightAdapter.submitList(tonightTasks)
+                }
+            }
         }
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null // Clean up binding to avoid memory leaks
     }
 }
+
