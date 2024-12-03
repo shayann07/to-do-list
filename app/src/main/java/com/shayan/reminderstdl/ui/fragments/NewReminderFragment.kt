@@ -23,7 +23,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.shayan.reminderstdl.R
 import com.shayan.reminderstdl.data.models.Tasks
 import com.shayan.reminderstdl.databinding.FragmentNewReminderBinding
-import com.shayan.reminderstdl.ui.viewmodels.ViewModel
+import com.shayan.reminderstdl.ui.viewmodel.ViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -168,18 +168,28 @@ class NewReminderFragment : Fragment() {
             return
         }
 
-        val task = Tasks(
-            title = title,
-            notes = notes,
-            date = selectedDate,
-            time = selectedTime,
-            timeCategory = determineTimeCategory(Calendar.getInstance().get(Calendar.HOUR_OF_DAY)),
-            flag = isFlagged,
-            location = if (binding.locationSwitch.isChecked) selectedLocation else null
-        )
-
-        viewModel.saveTask(uid!!, task)
+        // Check for duplicate titles in Firebase
+        viewModel.isDuplicateTitle(title) { isDuplicate ->
+            if (isDuplicate) {
+                showSnackbar("A task with this title already exists.")
+            } else {
+                // Proceed to save the task
+                val task = Tasks(
+                    title = title,
+                    notes = notes,
+                    date = selectedDate,
+                    time = selectedTime,
+                    timeCategory = determineTimeCategory(
+                        Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+                    ),
+                    location = if (binding.locationSwitch.isChecked) selectedLocation else null,
+                    flag = isFlagged
+                )
+                viewModel.saveTask(uid!!, task)
+            }
+        }
     }
+
 
     private fun handleLocationSwitch() {
         if (isLocationPermissionGranted()) {

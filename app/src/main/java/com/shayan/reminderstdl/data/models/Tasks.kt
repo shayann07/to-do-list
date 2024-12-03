@@ -2,6 +2,7 @@ package com.shayan.reminderstdl.data.models
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.util.UUID
 
 @Entity(tableName = "tasks_table")
 data class Tasks(
@@ -12,5 +13,6 @@ data class Tasks(
     val time: String? = null,
     val timeCategory: String? = null,
     val location: String? = null,
-    val flag: Boolean = false
+    val flag: Boolean = false,
+    val isCompleted: Boolean = false
 )

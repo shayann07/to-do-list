@@ -12,9 +12,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.shayan.reminderstdl.R
 import com.shayan.reminderstdl.adapters.TaskAdapter
 import com.shayan.reminderstdl.databinding.FragmentTodayBinding
-import com.shayan.reminderstdl.ui.viewmodels.ViewModel
+import com.shayan.reminderstdl.ui.viewmodel.ViewModel
 
-class TodayFragment : Fragment() {
+class TodayFragment : Fragment(), TaskAdapter.TaskCompletionListener {
+
     private var _binding: FragmentTodayBinding? = null
     private val binding get() = _binding!!
 
@@ -43,9 +44,9 @@ class TodayFragment : Fragment() {
         binding.recyclerTonight.layoutManager = LinearLayoutManager(context)
 
         // Initialize Adapters
-        morningAdapter = TaskAdapter()
-        afternoonAdapter = TaskAdapter()
-        tonightAdapter = TaskAdapter()
+        morningAdapter = TaskAdapter(this)
+        afternoonAdapter = TaskAdapter(this)
+        tonightAdapter = TaskAdapter(this)
 
         binding.recyclerMorning.adapter = morningAdapter
         binding.recyclerAfternoon.adapter = afternoonAdapter
@@ -59,9 +60,8 @@ class TodayFragment : Fragment() {
         if (userId != null) {
             viewModel.fetchTasks(userId)
 
-            // Observe morning tasks
             viewModel.morningTasksLiveData.observe(viewLifecycleOwner) { morningTasks ->
-                if (morningTasks.isEmpty()) {
+                if (morningTasks.isNullOrEmpty()) {
                     binding.recyclerMorning.visibility = View.GONE
                 } else {
                     binding.recyclerMorning.visibility = View.VISIBLE
@@ -69,9 +69,8 @@ class TodayFragment : Fragment() {
                 }
             }
 
-            // Observe afternoon tasks
             viewModel.afternoonTasksLiveData.observe(viewLifecycleOwner) { afternoonTasks ->
-                if (afternoonTasks.isEmpty()) {
+                if (afternoonTasks.isNullOrEmpty()) {
                     binding.recyclerAfternoon.visibility = View.GONE
                 } else {
                     binding.recyclerAfternoon.visibility = View.VISIBLE
@@ -79,9 +78,8 @@ class TodayFragment : Fragment() {
                 }
             }
 
-            // Observe tonight tasks
             viewModel.tonightTasksLiveData.observe(viewLifecycleOwner) { tonightTasks ->
-                if (tonightTasks.isEmpty()) {
+                if (tonightTasks.isNullOrEmpty()) {
                     binding.recyclerTonight.visibility = View.GONE
                 } else {
                     binding.recyclerTonight.visibility = View.VISIBLE
@@ -89,6 +87,10 @@ class TodayFragment : Fragment() {
                 }
             }
         }
+    }
+
+    override fun onTaskCompletionToggled(taskId: Int, isCompleted: Boolean) {
+        viewModel.toggleTaskCompletion(taskId, isCompleted)
     }
 
     override fun onDestroyView() {

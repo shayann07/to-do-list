@@ -8,8 +8,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.shayan.reminderstdl.data.models.Tasks
 import com.shayan.reminderstdl.databinding.ReminderItemsBinding
 
-// TaskAdapter now extends ListAdapter for better performance and automatic updates
-class TaskAdapter : ListAdapter<Tasks, TaskAdapter.TaskViewHolder>(TaskDiffCallback()) {
+class TaskAdapter(private val listener: TaskCompletionListener) :
+    ListAdapter<Tasks, TaskAdapter.TaskViewHolder>(TaskDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
         val binding =
@@ -19,27 +19,35 @@ class TaskAdapter : ListAdapter<Tasks, TaskAdapter.TaskViewHolder>(TaskDiffCallb
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
         val task = getItem(position)
-        holder.bind(task)
+        holder.bind(task, listener)
     }
 
-    // ViewHolder to hold the view bindings
     class TaskViewHolder(private val binding: ReminderItemsBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(task: Tasks) {
+        fun bind(task: Tasks, listener: TaskCompletionListener) {
             binding.fetchedTaskTitle.text = task.title
             binding.fetchedTaskTime.text = task.time ?: "Time not available"
+            binding.radioButton.isChecked = task.isCompleted
+
+            // Toggle completion state
+            binding.radioButton.setOnCheckedChangeListener { _, isChecked ->
+                listener.onTaskCompletionToggled(task.id, isChecked)
+            }
         }
     }
 
-    // DiffUtil callback to improve list update performance
     class TaskDiffCallback : DiffUtil.ItemCallback<Tasks>() {
         override fun areItemsTheSame(oldItem: Tasks, newItem: Tasks): Boolean {
-            return oldItem.id == newItem.id // Compare based on unique ID
+            return oldItem.id == newItem.id
         }
 
         override fun areContentsTheSame(oldItem: Tasks, newItem: Tasks): Boolean {
-            return oldItem == newItem // Compare content
+            return oldItem == newItem
         }
+    }
+
+    interface TaskCompletionListener {
+        fun onTaskCompletionToggled(taskId: Int, isCompleted: Boolean)
     }
 }

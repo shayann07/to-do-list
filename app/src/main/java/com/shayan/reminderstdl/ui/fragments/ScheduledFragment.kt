@@ -26,5 +26,10 @@ class ScheduledFragment : Fragment() {
         binding.backToHomeBtn.setOnClickListener {
             findNavController().navigate(R.id.scheduledFragment_to_homeFragment)
         }
+
+
+
+
+
     }
 }
