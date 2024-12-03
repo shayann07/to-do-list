@@ -37,6 +37,9 @@ class TodayFragment : Fragment(), TaskAdapter.TaskCompletionListener {
         binding.backToHomeBtn.setOnClickListener {
             findNavController().navigate(R.id.todayFragment_to_homeFragment)
         }
+        binding.newReminderButton.setOnClickListener{
+            findNavController().navigate(R.id.todayFragment_to_newReminderFragment)
+        }
 
         // Initialize RecyclerViews
         binding.recyclerMorning.layoutManager = LinearLayoutManager(context)
