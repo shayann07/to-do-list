@@ -25,7 +25,10 @@ class CompletedFragment : Fragment() {
 
         binding.backToHomeBtn.setOnClickListener {
             findNavController().navigate(R.id.completedFragment_to_homeFragment)
-
         }
+
+
+
+
     }
 }

@@ -36,6 +36,10 @@ class Repository(context: Context) {
         return taskDao.getTodayTaskCount(todayDate)
     }
 
+    suspend fun updateTaskCompletion(taskId: Int, isCompleted: Boolean) {
+        taskDao.updateTaskCompletion(taskId, isCompleted)
+    }
+
     suspend fun toggleTaskCompletion(taskId: Int, isCompleted: Boolean): Result<Boolean> {
         return try {
             withContext(Dispatchers.IO) {

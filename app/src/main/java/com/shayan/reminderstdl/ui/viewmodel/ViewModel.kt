@@ -66,6 +66,12 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun markTaskAsCompleted(taskId: Int) {
+        viewModelScope.launch {
+            repository.updateTaskCompletion(taskId, true)
+        }
+    }
+
     fun saveTask(uid: String, task: Tasks) {
         viewModelScope.launch {
             val firebaseResult = repository.saveTasksToFirebase(uid, task)
