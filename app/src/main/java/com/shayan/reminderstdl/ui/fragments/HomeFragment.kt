@@ -14,7 +14,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.shayan.reminderstdl.R
 import com.shayan.reminderstdl.databinding.FragmentHomeBinding
-import com.shayan.reminderstdl.ui.viewmodels.ViewModel
+import com.shayan.reminderstdl.ui.viewmodel.ViewModel
 import kotlin.reflect.KMutableProperty0
 
 class HomeFragment : Fragment() {
@@ -42,8 +42,12 @@ class HomeFragment : Fragment() {
 
         viewModel = ViewModelProvider(requireActivity())[ViewModel::class.java]
 
+        // Start observing task count
+        viewModel.observeTodayTaskCount()
+
+        // Update UI with observed count
         viewModel.todayTaskCount.observe(viewLifecycleOwner) { count ->
-            binding.todayCount.text = "$count"
+            binding.todayCount.text = count.toString()
         }
 
         binding.todayScreen.setOnClickListener {

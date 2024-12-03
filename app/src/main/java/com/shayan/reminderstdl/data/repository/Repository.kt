@@ -17,10 +17,42 @@ class Repository(context: Context) {
     private val userDao = AppDatabase.getInstance(context).userDao()
     private val taskDao = AppDatabase.getInstance(context).tasksDao()
 
+    suspend fun getTaskCountByTitle(title: String): Int {
+        return taskDao.countTaskByTitle(title)
+    }
+
+
+    // Fetch tasks for today from Room
+    suspend fun getTasksFromRoom(todayDate: String): List<Tasks> {
+        return taskDao.getTasksForToday(todayDate)
+    }
+
+    suspend fun getTaskByTitle(title: String): List<Tasks> {
+        return taskDao.getTaskByTitle("%$title%") // Use SQL LIKE syntax for partial match
+    }
+
+
+    fun getTodayTaskCountFlow(todayDate: String): kotlinx.coroutines.flow.Flow<Int> {
+        return taskDao.getTodayTaskCount(todayDate)
+    }
+
+    suspend fun toggleTaskCompletion(taskId: Int, isCompleted: Boolean): Result<Boolean> {
+        return try {
+            withContext(Dispatchers.IO) {
+                val task = taskDao.getTaskById(taskId) ?: throw Exception("Task not found")
+                taskDao.updateTask(task.copy(isCompleted = isCompleted))
+            }
+            Result.success(true)
+        } catch (e: Exception) {
+            Result.failure(Exception("Failed to toggle task completion: ${e.localizedMessage}"))
+        }
+    }
+
+
+    // Register User
     suspend fun registerUser(user: User, password: String): Result<Unit> {
         return try {
             auth.createUserWithEmailAndPassword(user.email, password).await()
-
             val firebaseUser = auth.currentUser
 
             if (firebaseUser != null) {
@@ -40,6 +72,7 @@ class Repository(context: Context) {
         }
     }
 
+    // Login User
     suspend fun loginUser(email: String, password: String): Result<User> {
         return try {
             auth.signInWithEmailAndPassword(email, password).await()
@@ -69,44 +102,36 @@ class Repository(context: Context) {
             }
         } catch (e: Exception) {
             Result.failure(Exception("Login failed: ${e.localizedMessage}"))
-
         }
     }
 
-    suspend fun saveTasksToFirebase(uid: String, task: Tasks): Result<Boolean> {
+    // Save Task to Firebase
+    suspend fun saveTasksToFirebase(uid: String, task: Tasks): Result<String> {
         return try {
             val userTasksRef = database.collection("Users").document(uid).collection("Tasks")
-            val taskMap = mapOf(
-                "title" to task.title,
-                "notes" to task.notes,
-                "date" to task.date,
-                "time" to task.time,
-                "timeCategory" to task.timeCategory,  // Added timeCategory
-                "location" to task.location,
-                "flag" to task.flag
-            )
-            userTasksRef.add(task).await()
-            Result.success(true)
+            val taskRef = userTasksRef.add(task).await()
+            Result.success(taskRef.id)
         } catch (e: Exception) {
             Result.failure(Exception("Failed to add task to Firebase: ${e.localizedMessage}"))
         }
     }
 
+    // Save Task to Room
     suspend fun saveTasksToRoom(task: Tasks): Result<Boolean> {
         return try {
-            taskDao.insertTask(task)
-            Result.success(true)
+            val existingTask = taskDao.getTaskByTitle(task.title)
+            if (existingTask.isEmpty()) {
+                taskDao.insertTask(task)
+                Result.success(true)
+            } else {
+                Result.failure(Exception("Duplicate task title detected"))
+            }
         } catch (e: Exception) {
-            Result.failure(Exception("Failed to add task to Room: ${e.localizedMessage}"))
+            Result.failure(Exception("Failed to save task: ${e.localizedMessage}"))
         }
     }
 
-    private suspend fun saveUserLocally(user: User) {
-        withContext(Dispatchers.IO) {
-            userDao.insertUser(user)
-        }
-    }
-
+    // Fetch Tasks from Firebase
     suspend fun fetchTasksFromFirebase(uid: String): Result<List<Tasks>> {
         return try {
             val tasksSnapshot =
@@ -123,6 +148,7 @@ class Repository(context: Context) {
                 val timeCategory = document.getString("timeCategory")
 
                 Tasks(
+                    id = 0, // Room generates the ID
                     title = title,
                     notes = notes,
                     date = date,
@@ -133,23 +159,28 @@ class Repository(context: Context) {
                 )
             }
 
-            tasksList.forEach { task ->
-                taskDao.insertTask(task) // Save to Room
-            }
-
+            tasksList.forEach { task -> saveTasksToRoom(task) } // Save locally
             Result.success(tasksList)
         } catch (e: Exception) {
             Result.failure(Exception("Failed to fetch tasks: ${e.localizedMessage}"))
         }
     }
 
+    // Save User Locally
+    private suspend fun saveUserLocally(user: User) {
+        withContext(Dispatchers.IO) {
+            userDao.insertUser(user)
+        }
+    }
 
+    // Get Local User
     suspend fun getLocalUser(email: String): User? {
         return withContext(Dispatchers.IO) {
             userDao.getUserByEmail(email)
         }
     }
 
+    // Clear Local Users
     suspend fun clearLocalUsers() {
         withContext(Dispatchers.IO) {
             userDao.clearAllUsers()

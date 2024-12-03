@@ -12,7 +12,7 @@ import androidx.navigation.fragment.findNavController
 import com.shayan.reminderstdl.R
 import com.shayan.reminderstdl.data.models.User
 import com.shayan.reminderstdl.databinding.FragmentRegisterBinding
-import com.shayan.reminderstdl.ui.viewmodels.ViewModel
+import com.shayan.reminderstdl.ui.viewmodel.ViewModel
 
 class RegisterFragment : Fragment() {
 
