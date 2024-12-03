@@ -173,21 +173,45 @@ class NewReminderFragment : Fragment() {
             if (isDuplicate) {
                 showSnackbar("A task with this title already exists.")
             } else {
+                // Automatically set time to current time if selectedDate is today's date and time is null
+                if (selectedDate == getCurrentDate() && selectedTime == null) {
+                    val calendar = Calendar.getInstance()
+                    val hour = calendar.get(Calendar.HOUR_OF_DAY)
+                    val minute = calendar.get(Calendar.MINUTE)
+                    selectedTime =
+                        String.format("%02d:%02d", hour, minute) // Set time to current time
+                }
+
+                // Determine the time category based on the selected time
+                val timeCategory = if (selectedTime != null) {
+                    determineTimeCategory(Calendar.getInstance().get(Calendar.HOUR_OF_DAY))
+                } else {
+                    "tonight" // Default time category if no time is selected
+                }
+
                 // Proceed to save the task
                 val task = Tasks(
                     title = title,
                     notes = notes,
                     date = selectedDate,
                     time = selectedTime,
-                    timeCategory = determineTimeCategory(
-                        Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
-                    ),
+                    timeCategory = timeCategory,
                     location = if (binding.locationSwitch.isChecked) selectedLocation else null,
                     flag = isFlagged
                 )
-                viewModel.saveTask(uid!!, task)
+                // Ensure 'uid' is not null before proceeding
+                uid?.let {
+                    viewModel.saveTask(it, task)
+                } ?: showSnackbar("User ID is missing.")
             }
         }
+    }
+
+    // Function to get the current date in the same format as selectedDate
+    private fun getCurrentDate(): String {
+        return SimpleDateFormat(
+            "yyyy-MM-dd", Locale.getDefault()
+        ).format(Calendar.getInstance().time)
     }
 
 
