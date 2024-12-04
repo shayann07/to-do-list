@@ -42,13 +42,14 @@ class HomeFragment : Fragment() {
 
         viewModel = ViewModelProvider(requireActivity())[ViewModel::class.java]
 
-        // Start observing task count
-        viewModel.observeTodayTaskCount()
-
         // Update UI with observed count
         viewModel.todayTaskCount.observe(viewLifecycleOwner) { count ->
             binding.todayCount.text = count.toString()
         }
+
+//        viewModel.incompleteTaskCountLiveData.observe(viewLifecycleOwner) { count ->
+//            binding.allCount.text = count.toString()
+//        }
 
         binding.todayScreen.setOnClickListener {
             findNavController().navigate(R.id.homeFragment_to_todayFragment)
