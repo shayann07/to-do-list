@@ -2,11 +2,12 @@ package com.shayan.reminderstdl.data.models
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.util.UUID
+import com.google.firebase.firestore.PropertyName
 
 @Entity(tableName = "tasks_table")
 data class Tasks(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val firebaseTaskId: String? = null,
     val title: String,
     val notes: String? = null,
     val date: String? = null,
@@ -14,5 +15,5 @@ data class Tasks(
     val timeCategory: String? = null,
     val location: String? = null,
     val flag: Boolean = false,
-    val isCompleted: Boolean = false
+    @get:PropertyName("completed") @set:PropertyName("completed") var isCompleted: Boolean = false
 )

@@ -168,44 +168,49 @@ class NewReminderFragment : Fragment() {
             return
         }
 
-        // Check for duplicate titles in Firebase
-        viewModel.isDuplicateTitle(title) { isDuplicate ->
-            if (isDuplicate) {
-                showSnackbar("A task with this title already exists.")
-            } else {
-                // Automatically set time to current time if selectedDate is today's date and time is null
-                if (selectedDate == getCurrentDate() && selectedTime == null) {
-                    val calendar = Calendar.getInstance()
-                    val hour = calendar.get(Calendar.HOUR_OF_DAY)
-                    val minute = calendar.get(Calendar.MINUTE)
-                    selectedTime =
-                        String.format("%02d:%02d", hour, minute) // Set time to current time
-                }
-
-                // Determine the time category based on the selected time
-                val timeCategory = if (selectedTime != null) {
-                    determineTimeCategory(Calendar.getInstance().get(Calendar.HOUR_OF_DAY))
-                } else {
-                    "tonight" // Default time category if no time is selected
-                }
-
-                // Proceed to save the task
-                val task = Tasks(
-                    title = title,
-                    notes = notes,
-                    date = selectedDate,
-                    time = selectedTime,
-                    timeCategory = timeCategory,
-                    location = if (binding.locationSwitch.isChecked) selectedLocation else null,
-                    flag = isFlagged
-                )
-                // Ensure 'uid' is not null before proceeding
-                uid?.let {
-                    viewModel.saveTask(it, task)
-                } ?: showSnackbar("User ID is missing.")
-            }
+        // Automatically set time to current time if selectedDate is today's date and time is null
+        if (selectedDate == getCurrentDate() && selectedTime == null) {
+            val calendar = Calendar.getInstance()
+            val hour = calendar.get(Calendar.HOUR_OF_DAY)
+            val minute = calendar.get(Calendar.MINUTE)
+            selectedTime = String.format("%02d:%02d", hour, minute) // Set time to current time
         }
+
+        // Determine the time category based on the selected time
+        val timeCategory = if (selectedTime != null) {
+            determineTimeCategory(Calendar.getInstance().get(Calendar.HOUR_OF_DAY))
+        } else {
+            "tonight" // Default time category if no time is selected
+        }
+
+        // Proceed to save the task
+        val task = Tasks(
+            title = title,
+            notes = notes,
+            date = selectedDate,
+            time = selectedTime,
+            timeCategory = timeCategory,
+            location = if (binding.locationSwitch.isChecked) selectedLocation else null,
+            flag = isFlagged,
+            isCompleted = false
+        )
+
+        // Ensure 'uid' is not null before proceeding
+        uid?.let { userId ->
+            viewModel.saveTask(userId, task)
+
+            // Observe task creation status from the ViewModel
+            viewModel.taskCreationStatus.observe(viewLifecycleOwner) { success ->
+                if (success) {
+                    showSnackbar("Task successfully added.")
+                    clearForm()
+                } else {
+                    showSnackbar("Failed to add task. Please try again.")
+                }
+            }
+        } ?: showSnackbar("User ID is missing.")
     }
+
 
     // Function to get the current date in the same format as selectedDate
     private fun getCurrentDate(): String {
