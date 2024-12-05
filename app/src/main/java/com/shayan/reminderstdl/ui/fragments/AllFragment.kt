@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -53,8 +54,15 @@ class AllFragment : Fragment(), TaskAdapter.TaskCompletionListener {
 
     }
 
-    override fun onTaskCompletionToggled(taskId: Int, isCompleted: Boolean) {
-        viewModel.toggleTaskCompletion(taskId, isCompleted)
+    override fun onTaskCompletionToggled(firebaseTaskId: String, isCompleted: Boolean) {
+        viewModel.toggleTaskCompletion(firebaseTaskId, isCompleted) { success, message ->
+            if (success) {
+                Toast.makeText(requireContext(), "Task updated", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(requireContext(), "Failed to update: $message", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        }
     }
 
     override fun onDestroyView() {

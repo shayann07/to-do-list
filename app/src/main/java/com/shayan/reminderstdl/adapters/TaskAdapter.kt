@@ -30,16 +30,19 @@ class TaskAdapter(private val listener: TaskCompletionListener) :
             binding.fetchedTaskTime.text = task.time ?: "Time not available"
             binding.radioButton.isChecked = task.isCompleted
 
+            // Prevent triggering the listener when setting initial state
+            binding.radioButton.setOnCheckedChangeListener(null)
+
             // Toggle completion state
             binding.radioButton.setOnCheckedChangeListener { _, isChecked ->
-                listener.onTaskCompletionToggled(task.id, isChecked)
+                listener.onTaskCompletionToggled(task.firebaseTaskId, isChecked)
             }
         }
     }
 
     class TaskDiffCallback : DiffUtil.ItemCallback<Tasks>() {
         override fun areItemsTheSame(oldItem: Tasks, newItem: Tasks): Boolean {
-            return oldItem.id == newItem.id
+            return oldItem.firebaseTaskId == newItem.firebaseTaskId
         }
 
         override fun areContentsTheSame(oldItem: Tasks, newItem: Tasks): Boolean {
@@ -48,6 +51,6 @@ class TaskAdapter(private val listener: TaskCompletionListener) :
     }
 
     interface TaskCompletionListener {
-        fun onTaskCompletionToggled(taskId: Int, isCompleted: Boolean)
+        fun onTaskCompletionToggled(firebaseTaskId: String, isCompleted: Boolean)
     }
 }

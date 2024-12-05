@@ -14,14 +14,8 @@ interface TasksDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTask(task: Tasks)
 
-    @Query("SELECT * FROM tasks_table WHERE id = :taskId LIMIT 1")
-    suspend fun getTaskById(taskId: Int): Tasks?
-
-    @Query("SELECT COUNT(*) FROM tasks_table WHERE title = :firebaseTaskId")
-    suspend fun countTaskByFirebaseTaskId(firebaseTaskId: String): Int
-
-    @Query("SELECT * FROM tasks_table WHERE title LIKE :firebaseTaskId")
-    suspend fun getTaskByFirebaseTaskId(firebaseTaskId: String): List<Tasks>
+    @Query("SELECT * FROM tasks_table WHERE firebaseTaskId = :firebaseTaskId LIMIT 1")
+    suspend fun getTaskByFirebaseTaskId(firebaseTaskId: String): Tasks?
 
     @Query("SELECT * FROM tasks_table WHERE date = :todayDate AND isCompleted = 0")
     suspend fun getTasksForToday(todayDate: String): List<Tasks>
@@ -29,8 +23,8 @@ interface TasksDao {
     @Query("SELECT COUNT(*) FROM tasks_table WHERE date = :todayDate AND isCompleted = 0")
     fun getTodayTaskCount(todayDate: String): Flow<Int>
 
-    @Query("UPDATE tasks_table SET isCompleted = :isCompleted WHERE id = :taskId")
-    suspend fun updateTaskCompletion(taskId: Int, isCompleted: Boolean)
+    @Query("UPDATE tasks_table SET isCompleted = :isCompleted WHERE firebaseTaskId = :firebaseTaskId")
+    suspend fun updateTaskCompletion(firebaseTaskId: String, isCompleted: Boolean)
 
     @Query("SELECT * FROM tasks_table WHERE isCompleted = 1")
     suspend fun getCompletedTasks(): List<Tasks>
