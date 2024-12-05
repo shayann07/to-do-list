@@ -185,6 +185,7 @@ class NewReminderFragment : Fragment() {
 
         // Proceed to save the task
         val task = Tasks(
+            firebaseTaskId = "",
             title = title,
             notes = notes,
             date = selectedDate,

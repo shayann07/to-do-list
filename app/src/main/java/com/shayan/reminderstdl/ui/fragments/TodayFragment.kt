@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -37,7 +38,7 @@ class TodayFragment : Fragment(), TaskAdapter.TaskCompletionListener {
         binding.backToHomeBtn.setOnClickListener {
             findNavController().navigate(R.id.todayFragment_to_homeFragment)
         }
-        binding.newReminderButton.setOnClickListener{
+        binding.newReminderButton.setOnClickListener {
             findNavController().navigate(R.id.todayFragment_to_newReminderFragment)
         }
 
@@ -92,8 +93,14 @@ class TodayFragment : Fragment(), TaskAdapter.TaskCompletionListener {
         }
     }
 
-    override fun onTaskCompletionToggled(taskId: Int, isCompleted: Boolean) {
-        viewModel.toggleTaskCompletion(taskId, isCompleted)
+    override fun onTaskCompletionToggled(firebaseTaskId: String, isCompleted: Boolean) {
+        viewModel.toggleTaskCompletion(firebaseTaskId, isCompleted) { success, message ->
+            Toast.makeText(
+                requireContext(),
+                if (success) "Task updated" else "Failed to update: $message",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     override fun onDestroyView() {

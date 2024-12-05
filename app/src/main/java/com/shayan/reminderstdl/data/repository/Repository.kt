@@ -1,6 +1,7 @@
 package com.shayan.reminderstdl.data.repository
 
 import android.content.Context
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.shayan.reminderstdl.data.local.AppDatabase
@@ -25,11 +26,11 @@ class Repository(context: Context) {
     suspend fun saveTasksToRoom(task: Tasks): Result<Boolean> {
         return try {
             val existingTask = taskDao.getTaskByFirebaseTaskId(task.firebaseTaskId.toString())
-            if (existingTask.isEmpty()) {
+            if (existingTask == null) {
                 taskDao.insertTask(task)
                 Result.success(true)
             } else {
-                Result.failure(Exception("Duplicate task title detected"))
+                Result.failure(Exception("Duplicate task Id detected"))
             }
         } catch (e: Exception) {
             Result.failure(Exception("Failed to save task: ${e.localizedMessage}"))
@@ -42,21 +43,31 @@ class Repository(context: Context) {
 
     fun getTodayTaskCountFlow(todayDate: String): Flow<Int> = taskDao.getTodayTaskCount(todayDate)
 
-    // Fetch tasks by room ID
-    suspend fun getTaskById(taskId: Int): Tasks? = taskDao.getTaskById(taskId)
-
     // sets isCompleted == true in room
-    suspend fun updateLocalTaskCompletion(taskId: Int, isCompleted: Boolean) {
-        taskDao.updateTaskCompletion(taskId, isCompleted)
+    // Update task completion locally
+    suspend fun updateLocalTaskCompletion(firebaseTaskId: String, isCompleted: Boolean) {
+        taskDao.updateTaskCompletion(firebaseTaskId, isCompleted)
+        val updatedTask = taskDao.getTaskByFirebaseTaskId(firebaseTaskId)
+        Log.d("Repository", "Updated Task: $updatedTask")
     }
 
     // Fetch completed tasks from Room and their count
     suspend fun getCompletedTasks(): List<Tasks> = taskDao.getCompletedTasks()
-    fun getCompletedTasksCount(): Flow<Int> = taskDao.getCompletedTaskCount()
+    fun getCompletedTasksCountFlow(): Flow<Int> = taskDao.getCompletedTaskCount()
 
     // Fetch (all.whereNotEqual("completed", true)) tasks from Room and their count
     suspend fun getIncompleteTasks(): List<Tasks> = taskDao.getIncompleteTasks()
-    fun getIncompleteTasksCount(): Flow<Int> = taskDao.getIncompleteTaskCount()
+    fun getIncompleteTasksCountFlow(): Flow<Int> = taskDao.getIncompleteTaskCount()
+
+    // Update a task
+    suspend fun updateTask(task: Tasks) {
+        taskDao.updateTask(task)
+    }
+
+    // Clear all tasks locally
+    suspend fun clearAllTasks() {
+        taskDao.clearAllTasks()
+    }
 
     //  Save User Locally
     private suspend fun saveUserLocally(user: User) {
@@ -81,20 +92,13 @@ class Repository(context: Context) {
 
 //        FIREBASE OPERATIONS
 
-    // Save Task to Firebase
-    suspend fun saveTasksToFirebase(uid: String, task: Tasks): Result<String> {
+    // Save task to Firebase
+    suspend fun saveTaskToFirebase(uid: String, task: Tasks): Result<String> {
         return try {
-            // Add the task to Firebase
             val userTasksRef =
                 database.collection("Users").document(uid).collection("Tasks").add(task).await()
-
-            // Get the generated document ID
             val firebaseTaskId = userTasksRef.id
-
-            // Update the firebaseTaskId field in Firebase
             userTasksRef.update("firebaseTaskId", firebaseTaskId).await()
-
-            // Return the generated document ID as success
             Result.success(firebaseTaskId)
         } catch (e: Exception) {
             Result.failure(e)
@@ -134,20 +138,24 @@ class Repository(context: Context) {
         }
     }
 
-    // sets isCompleted == true in room and firebase
-    suspend fun toggleTaskCompletion(taskId: Int, isCompleted: Boolean): Result<Boolean> {
+    // Toggle task completion status in Firebase and Room
+    suspend fun toggleTaskCompletion(
+        firebaseTaskId: String, isCompleted: Boolean
+    ): Result<Boolean> {
         return try {
-            val task = getTaskById(taskId) ?: throw Exception("Task not found")
-            updateLocalTaskCompletion(taskId, isCompleted)
-
-            val uid = auth.currentUser?.uid ?: throw Exception("User not logged in")
-            val firebaseTaskId =
-                task.firebaseTaskId ?: throw Exception("Task not linked to Firebase")
-            updateFirebaseTaskCompletion(firebaseTaskId, isCompleted)
+            val firebaseResult = updateFirebaseTaskCompletion(firebaseTaskId, isCompleted)
+            if (firebaseResult.isSuccess) {
+                updateLocalTaskCompletion(firebaseTaskId, isCompleted)
+                Result.success(true)
+            } else {
+                Result.failure(Exception("Failed to update task completion in Firebase"))
+            }
         } catch (e: Exception) {
+            Log.e("Repository", "Error in toggleTaskCompletion: ${e.message}")
             Result.failure(e)
         }
     }
+
 
     // Register User
     suspend fun registerUser(user: User, password: String): Result<Unit> {

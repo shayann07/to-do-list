@@ -16,7 +16,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = Repository(application)
 
-    val tasksList = MutableLiveData<List<Tasks>>()
+    val tasksList = MutableLiveData<List<Tasks>?>()
     val todayTaskCount: MutableLiveData<Int> = MutableLiveData()
     val completedTasks = MutableLiveData<List<Tasks>>()
     val incompleteTasks = MutableLiveData<List<Tasks>>()
@@ -25,6 +25,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
     val afternoonTasksLiveData = MutableLiveData<List<Tasks>>()
     val tonightTasksLiveData = MutableLiveData<List<Tasks>>()
 
+    // Fetch today's tasks and categorize them
     fun fetchTodayTasks() {
         val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
         viewModelScope.launch {
@@ -43,28 +44,31 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun toggleTaskCompletion(taskId: Int, isCompleted: Boolean) {
+    // Toggle task completion status
+    fun toggleTaskCompletion(
+        firebaseTaskId: String, isCompleted: Boolean, onCompletion: (Boolean, String) -> Unit
+    ) {
         viewModelScope.launch {
             try {
-                val task = repository.getTaskById(taskId)
-                if (task != null) {
-                    val firebaseTaskId = task.firebaseTaskId
-                    repository.updateLocalTaskCompletion(taskId, isCompleted)
-                    if (!firebaseTaskId.isNullOrEmpty()) {
-                        repository.updateFirebaseTaskCompletion(firebaseTaskId, isCompleted)
-                    }
-                    fetchTodayTasks()
-                }
+                val result = repository.toggleTaskCompletion(firebaseTaskId, isCompleted)
+                result.fold(onSuccess = {
+                    fetchTodayTasks() // Refresh tasks after update
+                    onCompletion(true, "Task successfully updated!")
+                }, onFailure = { exception ->
+                    onCompletion(false, "Failed to update task: ${exception.message}")
+                })
             } catch (e: Exception) {
-                Log.e("ViewModel", "Failed to toggle task completion: ${e.message}")
+                onCompletion(false, "Unexpected error: ${e.message}")
             }
         }
     }
 
+
+    // Save a new task to Firebase and Room
     fun saveTask(uid: String, task: Tasks) {
         viewModelScope.launch {
             try {
-                val firebaseResult = repository.saveTasksToFirebase(uid, task)
+                val firebaseResult = repository.saveTaskToFirebase(uid, task)
                 firebaseResult.fold(onSuccess = { firebaseTaskId ->
                     val updatedTask = task.copy(firebaseTaskId = firebaseTaskId)
                     val roomResult = repository.saveTasksToRoom(updatedTask)
@@ -78,6 +82,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    // Fetch tasks from Firebase and save them to Room
     fun fetchTasks(uid: String) {
         viewModelScope.launch {
             try {
@@ -102,6 +107,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    // Categorize tasks based on their time
     private fun categorizeTasksByTime(tasks: List<Tasks>): Triple<List<Tasks>, List<Tasks>, List<Tasks>> {
         val morning = mutableListOf<Tasks>()
         val afternoon = mutableListOf<Tasks>()
@@ -117,6 +123,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         return Triple(morning, afternoon, tonight)
     }
 
+    // Login user
     fun login(
         email: String, password: String, onSuccess: (User) -> Unit, onError: (String) -> Unit
     ) {
@@ -130,6 +137,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    // Register user
     fun register(user: User, password: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
 
         viewModelScope.launch {
@@ -141,6 +149,4 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
             })
         }
     }
-
-
 }
