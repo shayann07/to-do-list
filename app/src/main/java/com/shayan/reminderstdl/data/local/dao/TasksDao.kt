@@ -17,7 +17,7 @@ interface TasksDao {
     @Query("SELECT * FROM tasks_table WHERE firebaseTaskId = :firebaseTaskId LIMIT 1")
     suspend fun getTaskByFirebaseTaskId(firebaseTaskId: String): Tasks?
 
-    @Query("SELECT * FROM tasks_table WHERE date = :todayDate AND isCompleted = 0")
+    @Query("SELECT * FROM tasks_table WHERE date = :todayDate AND isCompleted = 0 ORDER BY timestamp DESC")
     suspend fun getTasksForToday(todayDate: String): List<Tasks>
 
     @Query("SELECT COUNT(*) FROM tasks_table WHERE date = :todayDate AND isCompleted = 0")

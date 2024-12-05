@@ -120,6 +120,12 @@ class HomeFragment : Fragment() {
         arrowState.set(!arrowState.get())
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.fetchTodayTasks()  // Refresh task count
+    }
+
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

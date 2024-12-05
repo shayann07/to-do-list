@@ -31,10 +31,14 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 val tasks = repository.getTasksForToday(todayDate)
-                tasksList.postValue(tasks)
-                todayTaskCount.postValue(tasks.size)
+                val sortedTasks = tasks.sortedByDescending { it.timestamp }
+                val incompleteTasksForToday =
+                    sortedTasks.filter { !it.isCompleted } // Ensure exclusion of completed tasks
 
-                val (morning, afternoon, tonight) = categorizeTasksByTime(tasks)
+                tasksList.postValue(incompleteTasksForToday)
+                todayTaskCount.postValue(incompleteTasksForToday.size)
+
+                val (morning, afternoon, tonight) = categorizeTasksByTime(incompleteTasksForToday)
                 morningTasksLiveData.postValue(morning)
                 afternoonTasksLiveData.postValue(afternoon)
                 tonightTasksLiveData.postValue(tonight)
@@ -44,15 +48,41 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    // Fetch all incomplete tasks and observe in fragments
+    fun fetchIncompleteTasks() {
+        viewModelScope.launch {
+            try {
+                val tasks = repository.getIncompleteTasks()
+                incompleteTasks.postValue(tasks)
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Failed to fetch incomplete tasks: ${e.message}")
+            }
+        }
+    }
+
+
     // Toggle task completion status
     fun toggleTaskCompletion(
-        firebaseTaskId: String, isCompleted: Boolean, onCompletion: (Boolean, String) -> Unit
+        firebaseTaskId: String, isCompleted: Boolean, onCompletion: (Boolean, String?) -> Unit
     ) {
         viewModelScope.launch {
             try {
                 val result = repository.toggleTaskCompletion(firebaseTaskId, isCompleted)
                 result.fold(onSuccess = {
-                    fetchTodayTasks() // Refresh tasks after update
+                    // Fetch only incomplete tasks again to update the UI
+                    val todayDate =
+                        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+                    val tasks = repository.getTasksForToday(todayDate)
+                    val incompleteTasks = tasks.filter { !it.isCompleted }
+
+                    tasksList.postValue(incompleteTasks)
+                    todayTaskCount.postValue(incompleteTasks.size)
+
+                    val (morning, afternoon, tonight) = categorizeTasksByTime(incompleteTasks)
+                    morningTasksLiveData.postValue(morning)
+                    afternoonTasksLiveData.postValue(afternoon)
+                    tonightTasksLiveData.postValue(tonight)
+
                     onCompletion(true, "Task successfully updated!")
                 }, onFailure = { exception ->
                     onCompletion(false, "Failed to update task: ${exception.message}")
@@ -68,9 +98,13 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
     fun saveTask(uid: String, task: Tasks) {
         viewModelScope.launch {
             try {
-                val firebaseResult = repository.saveTaskToFirebase(uid, task)
+                val firebaseResult = repository.saveTaskToFirebase(
+                    uid, task.copy(timestamp = System.currentTimeMillis())
+                )
                 firebaseResult.fold(onSuccess = { firebaseTaskId ->
-                    val updatedTask = task.copy(firebaseTaskId = firebaseTaskId)
+                    val updatedTask = task.copy(
+                        firebaseTaskId = firebaseTaskId, timestamp = System.currentTimeMillis()
+                    )
                     val roomResult = repository.saveTasksToRoom(updatedTask)
                     taskCreationStatus.postValue(roomResult.isSuccess)
                 }, onFailure = {
@@ -90,7 +124,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
                 result.fold(onSuccess = { tasks ->
                     val todayDate =
                         SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-                    val todayTasks = tasks.filter { it.date == todayDate }
+                    val todayTasks = tasks.filter { it.date == todayDate && !it.isCompleted }
                     tasksList.postValue(todayTasks)
                     todayTaskCount.postValue(todayTasks.size)
 
