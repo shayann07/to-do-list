@@ -59,39 +59,32 @@ class TodayFragment : Fragment(), TaskAdapter.TaskCompletionListener {
         // Initialize ViewModel
         viewModel = ViewModelProvider(requireActivity())[ViewModel::class.java]
 
-        // Fetch tasks
+
+
+        viewModel.morningTasksLiveData.observe(viewLifecycleOwner) { morningTasks ->
+            morningAdapter.submitList(morningTasks)
+            binding.recyclerMorning.visibility =
+                if (morningTasks.isNullOrEmpty()) View.GONE else View.VISIBLE
+        }
+
+        viewModel.afternoonTasksLiveData.observe(viewLifecycleOwner) { afternoonTasks ->
+            afternoonAdapter.submitList(afternoonTasks)
+            binding.recyclerAfternoon.visibility =
+                if (afternoonTasks.isNullOrEmpty()) View.GONE else View.VISIBLE
+        }
+
+        viewModel.tonightTasksLiveData.observe(viewLifecycleOwner) { tonightTasks ->
+            tonightAdapter.submitList(tonightTasks)
+            binding.recyclerTonight.visibility =
+                if (tonightTasks.isNullOrEmpty()) View.GONE else View.VISIBLE
+        }
+
         val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId != null) {
+        if (savedInstanceState == null && userId != null) {
             viewModel.fetchTasks(userId)
-
-            viewModel.morningTasksLiveData.observe(viewLifecycleOwner) { morningTasks ->
-                if (morningTasks.isNullOrEmpty()) {
-                    binding.recyclerMorning.visibility = View.GONE
-                } else {
-                    binding.recyclerMorning.visibility = View.VISIBLE
-                    morningAdapter.submitList(morningTasks)
-                }
-            }
-
-            viewModel.afternoonTasksLiveData.observe(viewLifecycleOwner) { afternoonTasks ->
-                if (afternoonTasks.isNullOrEmpty()) {
-                    binding.recyclerAfternoon.visibility = View.GONE
-                } else {
-                    binding.recyclerAfternoon.visibility = View.VISIBLE
-                    afternoonAdapter.submitList(afternoonTasks)
-                }
-            }
-
-            viewModel.tonightTasksLiveData.observe(viewLifecycleOwner) { tonightTasks ->
-                if (tonightTasks.isNullOrEmpty()) {
-                    binding.recyclerTonight.visibility = View.GONE
-                } else {
-                    binding.recyclerTonight.visibility = View.VISIBLE
-                    tonightAdapter.submitList(tonightTasks)
-                }
-            }
         }
     }
+
 
     override fun onTaskCompletionToggled(firebaseTaskId: String, isCompleted: Boolean) {
         viewModel.toggleTaskCompletion(firebaseTaskId, isCompleted) { success, message ->

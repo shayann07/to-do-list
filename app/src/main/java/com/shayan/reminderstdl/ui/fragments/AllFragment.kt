@@ -18,6 +18,7 @@ class AllFragment : Fragment(), TaskAdapter.TaskCompletionListener {
 
     private var _binding: FragmentAllBinding? = null
     private val binding get() = _binding!!
+
     private lateinit var viewModel: ViewModel
     private lateinit var allAdapter: TaskAdapter
 
@@ -37,31 +38,24 @@ class AllFragment : Fragment(), TaskAdapter.TaskCompletionListener {
 
         binding.allRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         allAdapter = TaskAdapter(this)
-
         binding.allRecyclerView.adapter = allAdapter
 
         viewModel = ViewModelProvider(requireActivity())[ViewModel::class.java]
-
-        viewModel.incompleteTasks.observe(viewLifecycleOwner) { tasks ->
-            if (tasks.isNullOrEmpty()) {
-                binding.allRecyclerView.visibility = View.GONE
-            } else {
-                binding.allRecyclerView.visibility = View.VISIBLE
-                allAdapter.submitList(tasks)
-            }
+        viewModel.fetchIncompleteTasks()
+        viewModel.incompleteTasks.observe(viewLifecycleOwner) { incompleteTasks ->
+            allAdapter.submitList(incompleteTasks)
+            binding.allRecyclerView.visibility =
+                if (incompleteTasks.isNullOrEmpty()) View.GONE else View.VISIBLE
         }
-
-
     }
 
     override fun onTaskCompletionToggled(firebaseTaskId: String, isCompleted: Boolean) {
         viewModel.toggleTaskCompletion(firebaseTaskId, isCompleted) { success, message ->
-            if (success) {
-                Toast.makeText(requireContext(), "Task updated", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(requireContext(), "Failed to update: $message", Toast.LENGTH_SHORT)
-                    .show()
-            }
+            Toast.makeText(
+                requireContext(),
+                if (success) "Task updated" else "Failed to update: $message",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
