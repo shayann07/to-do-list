@@ -43,6 +43,13 @@ class Repository(context: Context) {
 
     fun getTodayTaskCountFlow(todayDate: String): Flow<Int> = taskDao.getTodayTaskCount(todayDate)
 
+    // Fetch Flagged Tasks
+    suspend fun getFlaggedTasks(): List<Tasks> = withContext(Dispatchers.IO) {
+        taskDao.getFlaggedTasks()
+    }
+
+    fun getFlaggedTaskCountFlow(): Flow<Int> = taskDao.getFlaggedTaskCount()
+
     // Update Task Completion Locally
     suspend fun updateLocalTaskCompletion(firebaseTaskId: String, isCompleted: Boolean) =
         withContext(Dispatchers.IO) {
@@ -53,6 +60,11 @@ class Repository(context: Context) {
             )
         }
 
+    // Fetch (all.whereNotEqual("completed", true)) tasks from Room and their count
+    suspend fun getIncompleteTasks(): List<Tasks> =
+        withContext(Dispatchers.IO) { taskDao.getIncompleteTasks() }
+
+    fun getIncompleteTasksCountFlow(): Flow<Int> = taskDao.getIncompleteTaskCount()
 
     // Fetch completed tasks from Room and their count
     suspend fun getCompletedTasks(): List<Tasks> =
@@ -60,11 +72,12 @@ class Repository(context: Context) {
 
     fun getCompletedTasksCountFlow(): Flow<Int> = taskDao.getCompletedTaskCount()
 
-    // Fetch (all.whereNotEqual("completed", true)) tasks from Room and their count
-    suspend fun getIncompleteTasks(): List<Tasks> =
-        withContext(Dispatchers.IO) { taskDao.getIncompleteTasks() }
 
-    fun getIncompleteTasksCountFlow(): Flow<Int> = taskDao.getIncompleteTaskCount()
+    // Fetch every tasks from Room and its count
+    suspend fun getTotalTasks(): List<Tasks> =
+        withContext(Dispatchers.IO) { taskDao.getTotalTasks() }
+
+    fun getTotalTasksCountFlow(): Flow<Int> = taskDao.getTotalTaskCount()
 
     // Update a task
     suspend fun updateTask(task: Tasks) = withContext(Dispatchers.IO) {
@@ -115,7 +128,7 @@ class Repository(context: Context) {
 
 
     // Fetch Tasks from Firebase
-    suspend fun fetchTasksFromFirebase(uid: String): Result<List<Tasks>> =
+    suspend fun fetchTasksFromFirebaseAndSaveToRoom(uid: String): Result<List<Tasks>> =
         withContext(Dispatchers.IO) {
             try {
                 val tasksSnapshot =

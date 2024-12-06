@@ -3,7 +3,9 @@ package com.shayan.reminderstdl.ui.viewmodel
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.shayan.reminderstdl.data.models.Tasks
 import com.shayan.reminderstdl.data.models.User
@@ -16,14 +18,33 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = Repository(application)
 
+    // Task counts as LiveData
+    val todayTaskCount: LiveData<Int>
+    val flaggedTasksCount: LiveData<Int>
+    val incompleteTasksCount: LiveData<Int>
+    val completedTasksCount: LiveData<Int>
+    val totalTaskCount: LiveData<Int>
+
+    init {
+        val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+
+        todayTaskCount = repository.getTodayTaskCountFlow(todayDate).asLiveData()
+        flaggedTasksCount = repository.getFlaggedTaskCountFlow().asLiveData()
+        incompleteTasksCount = repository.getIncompleteTasksCountFlow().asLiveData()
+        completedTasksCount = repository.getCompletedTasksCountFlow().asLiveData()
+        totalTaskCount = repository.getTotalTasksCountFlow().asLiveData()
+    }
+
+    // Task lists
     val tasksList = MutableLiveData<List<Tasks>?>()
-    val todayTaskCount: MutableLiveData<Int> = MutableLiveData()
-    val completedTasks = MutableLiveData<List<Tasks>>()
-    val incompleteTasks = MutableLiveData<List<Tasks>>()
     val taskCreationStatus = MutableLiveData<Boolean>()
     val morningTasksLiveData = MutableLiveData<List<Tasks>>()
     val afternoonTasksLiveData = MutableLiveData<List<Tasks>>()
     val tonightTasksLiveData = MutableLiveData<List<Tasks>>()
+    val flaggedTasks = MutableLiveData<List<Tasks>>()
+    val incompleteTasks = MutableLiveData<List<Tasks>>()
+    val completedTasks = MutableLiveData<List<Tasks>>()
+    val totalTasks = MutableLiveData<List<Tasks>>()
 
     // Fetch today's tasks and categorize them
     fun fetchTodayTasks() {
@@ -36,7 +57,6 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
                     sortedTasks.filter { !it.isCompleted } // Ensure exclusion of completed tasks
 
                 tasksList.postValue(incompleteTasksForToday)
-                todayTaskCount.postValue(incompleteTasksForToday.size)
 
                 val (morning, afternoon, tonight) = categorizeTasksByTime(incompleteTasksForToday)
                 morningTasksLiveData.postValue(morning)
@@ -44,6 +64,42 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
                 tonightTasksLiveData.postValue(tonight)
             } catch (e: Exception) {
                 Log.e("ViewModel", "Failed to fetch tasks for today: ${e.message}")
+            }
+        }
+    }
+
+    // Fetch tasks from Firebase and save them to Room
+    fun fetchTasks(uid: String) {
+        viewModelScope.launch {
+            try {
+                val result = repository.fetchTasksFromFirebaseAndSaveToRoom(uid)
+                result.fold(onSuccess = { tasks ->
+                    val todayDate =
+                        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+                    val todayTasks = tasks.filter { it.date == todayDate && !it.isCompleted }
+                    tasksList.postValue(todayTasks)
+
+                    val (morning, afternoon, tonight) = categorizeTasksByTime(todayTasks)
+                    morningTasksLiveData.postValue(morning)
+                    afternoonTasksLiveData.postValue(afternoon)
+                    tonightTasksLiveData.postValue(tonight)
+                }, onFailure = { exception ->
+                    Log.e("ViewModel", "Failed to fetch tasks: ${exception.message}")
+                })
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Failed to fetch tasks: ${e.message}")
+            }
+        }
+    }
+
+
+    fun fetchFlaggedTasks() {
+        viewModelScope.launch {
+            try {
+                val tasks = repository.getFlaggedTasks()
+                flaggedTasks.postValue(tasks)
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Failed to fetch flagged tasks: ${e.message}")
             }
         }
     }
@@ -60,6 +116,27 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun fetchCompletedTasks() {
+        viewModelScope.launch {
+            try {
+                val tasks = repository.getCompletedTasks()
+                completedTasks.postValue(tasks)
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Failed to fetch completed tasks: ${e.message}")
+            }
+        }
+    }
+
+    fun fetchTotalTasks() {
+        viewModelScope.launch {
+            try {
+                val tasks = repository.getTotalTasks()
+                totalTasks.postValue(tasks)
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Failed to fetch completed tasks: ${e.message}")
+            }
+        }
+    }
 
     // Toggle task completion status
     fun toggleTaskCompletion(
@@ -76,7 +153,6 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
                     val incompleteTasks = tasks.filter { !it.isCompleted }
 
                     tasksList.postValue(incompleteTasks)
-                    todayTaskCount.postValue(incompleteTasks.size)
 
                     val (morning, afternoon, tonight) = categorizeTasksByTime(incompleteTasks)
                     morningTasksLiveData.postValue(morning)
@@ -112,31 +188,6 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
                 })
             } catch (e: Exception) {
                 Log.e("ViewModel", "Failed to save task: ${e.message}")
-            }
-        }
-    }
-
-    // Fetch tasks from Firebase and save them to Room
-    fun fetchTasks(uid: String) {
-        viewModelScope.launch {
-            try {
-                val result = repository.fetchTasksFromFirebase(uid)
-                result.fold(onSuccess = { tasks ->
-                    val todayDate =
-                        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-                    val todayTasks = tasks.filter { it.date == todayDate && !it.isCompleted }
-                    tasksList.postValue(todayTasks)
-                    todayTaskCount.postValue(todayTasks.size)
-
-                    val (morning, afternoon, tonight) = categorizeTasksByTime(todayTasks)
-                    morningTasksLiveData.postValue(morning)
-                    afternoonTasksLiveData.postValue(afternoon)
-                    tonightTasksLiveData.postValue(tonight)
-                }, onFailure = { exception ->
-                    Log.e("ViewModel", "Failed to fetch tasks: ${exception.message}")
-                })
-            } catch (e: Exception) {
-                Log.e("ViewModel", "Failed to fetch tasks: ${e.message}")
             }
         }
     }
