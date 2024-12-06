@@ -351,16 +351,6 @@
                             android:src="@drawable/complete_icon" />
 
                         <TextView
-                            android:id="@+id/completed_count"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignBottom="@id/icon_completed"
-                            android:layout_marginStart="16dp"
-                            android:layout_toEndOf="@id/icon_completed"
-                            android:padding="8dp"
-                            android:textSize="32sp" />
-
-                        <TextView
                             android:id="@+id/completed_text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -422,6 +412,7 @@
                         app:drawableStartCompat="@drawable/tasks_icon" />
 
                     <TextView
+                        android:id="@+id/iCloud_count"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:drawablePadding="12dp"
@@ -472,6 +463,7 @@
                         app:drawableStartCompat="@drawable/tasks_icon" />
 
                     <TextView
+                        android:id="@+id/outlook_count"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:drawablePadding="12dp"

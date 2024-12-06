@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.PopupMenu
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -42,14 +43,31 @@ class HomeFragment : Fragment() {
 
         viewModel = ViewModelProvider(requireActivity())[ViewModel::class.java]
 
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null) {
+            viewModel.fetchTasks(userId)
+        } else {
+            Toast.makeText(requireContext(), "No tasks to fetch", Toast.LENGTH_SHORT).show()
+        }
+
         // Update UI with observed count
         viewModel.todayTaskCount.observe(viewLifecycleOwner) { count ->
             binding.todayCount.text = count.toString()
         }
 
-//        viewModel.incompleteTaskCountLiveData.observe(viewLifecycleOwner) { count ->
-//            binding.allCount.text = count.toString()
-//        }
+        viewModel.flaggedTasksCount.observe(viewLifecycleOwner) { count ->
+            binding.flaggedCount.text = count.toString()
+        }
+
+        viewModel.incompleteTasksCount.observe(viewLifecycleOwner) { count ->
+            binding.scheduledCount.text = count.toString()
+            binding.allCount.text = count.toString()
+            binding.outlookCount.text = count.toString()
+        }
+
+        viewModel.totalTaskCount.observe(viewLifecycleOwner) { count ->
+            binding.iCloudCount.text = count.toString()
+        }
 
         binding.todayScreen.setOnClickListener {
             findNavController().navigate(R.id.homeFragment_to_todayFragment)
@@ -123,6 +141,9 @@ class HomeFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         viewModel.fetchTodayTasks()  // Refresh task count
+        viewModel.fetchIncompleteTasks()
+        viewModel.fetchCompletedTasks()
+        viewModel.fetchFlaggedTasks()
     }
 
 

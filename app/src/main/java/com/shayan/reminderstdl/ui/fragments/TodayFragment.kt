@@ -78,11 +78,6 @@ class TodayFragment : Fragment(), TaskAdapter.TaskCompletionListener {
             binding.recyclerTonight.visibility =
                 if (tonightTasks.isNullOrEmpty()) View.GONE else View.VISIBLE
         }
-
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (savedInstanceState == null && userId != null) {
-            viewModel.fetchTasks(userId)
-        }
     }
 
 

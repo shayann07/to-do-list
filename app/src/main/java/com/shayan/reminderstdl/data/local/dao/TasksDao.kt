@@ -23,8 +23,21 @@ interface TasksDao {
     @Query("SELECT COUNT(*) FROM tasks_table WHERE date = :todayDate AND isCompleted = 0")
     fun getTodayTaskCount(todayDate: String): Flow<Int>
 
+    @Query("SELECT * FROM tasks_table WHERE flag = 1 AND isCompleted = 0 ORDER BY timestamp DESC")
+    suspend fun getFlaggedTasks(): List<Tasks>
+
+    @Query("SELECT COUNT(*) FROM tasks_table WHERE flag = 1 AND isCompleted = 0")
+    fun getFlaggedTaskCount(): Flow<Int>
+
     @Query("UPDATE tasks_table SET isCompleted = :isCompleted WHERE firebaseTaskId = :firebaseTaskId")
     suspend fun updateTaskCompletion(firebaseTaskId: String, isCompleted: Boolean)
+
+
+    @Query("SELECT * FROM tasks_table WHERE isCompleted = 0")
+    suspend fun getIncompleteTasks(): List<Tasks>
+
+    @Query("SELECT COUNT(*) FROM tasks_table WHERE isCompleted = 0")
+    fun getIncompleteTaskCount(): Flow<Int>
 
     @Query("SELECT * FROM tasks_table WHERE isCompleted = 1")
     suspend fun getCompletedTasks(): List<Tasks>
@@ -32,11 +45,11 @@ interface TasksDao {
     @Query("SELECT COUNT(*) FROM tasks_table WHERE isCompleted = 1")
     fun getCompletedTaskCount(): Flow<Int>
 
-    @Query("SELECT * FROM tasks_table WHERE isCompleted = 0")
-    suspend fun getIncompleteTasks(): List<Tasks>
+    @Query("SELECT * FROM tasks_table")
+    suspend fun getTotalTasks(): List<Tasks>
 
-    @Query("SELECT COUNT(*) FROM tasks_table WHERE isCompleted = 0")
-    fun getIncompleteTaskCount(): Flow<Int>
+    @Query("SELECT COUNT(*) FROM tasks_table")
+    fun getTotalTaskCount(): Flow<Int>
 
     @Update
     fun updateTask(task: Tasks)
