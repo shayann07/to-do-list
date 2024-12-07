@@ -43,6 +43,14 @@ class Repository(context: Context) {
 
     fun getTodayTaskCountFlow(todayDate: String): Flow<Int> = taskDao.getTodayTaskCount(todayDate)
 
+    suspend fun getScheduledTasks(startDate: String, endDate: String): List<Tasks> =
+        withContext(Dispatchers.IO) {
+            taskDao.getTasksForDateRange(startDate, endDate)
+        }
+
+    fun getScheduledTasksCountFlow(startDate: String, endDate: String): Flow<Int> =
+        taskDao.getTasksCountForDateRange(startDate, endDate)
+
     // Fetch Flagged Tasks
     suspend fun getFlaggedTasks(): List<Tasks> = withContext(Dispatchers.IO) {
         taskDao.getFlaggedTasks()

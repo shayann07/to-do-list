@@ -1,5 +1,3 @@
-import com.android.build.gradle.ProguardFiles.getDefaultProguardFile
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -59,11 +57,11 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.recyclerview)
-    implementation (libs.androidx.room.runtime)
-    implementation (libs.play.services.location)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.play.services.location)
     implementation(libs.androidx.room.ktx)
     implementation(libs.firebase.auth)
-    ksp (libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
