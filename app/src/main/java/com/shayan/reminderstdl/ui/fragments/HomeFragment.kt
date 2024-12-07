@@ -55,12 +55,15 @@ class HomeFragment : Fragment() {
             binding.todayCount.text = count.toString()
         }
 
+        viewModel.scheduledTasksCount.observe(viewLifecycleOwner) { count ->
+            binding.scheduledCount.text = count.toString()
+        }
+
         viewModel.flaggedTasksCount.observe(viewLifecycleOwner) { count ->
             binding.flaggedCount.text = count.toString()
         }
 
         viewModel.incompleteTasksCount.observe(viewLifecycleOwner) { count ->
-            binding.scheduledCount.text = count.toString()
             binding.allCount.text = count.toString()
             binding.outlookCount.text = count.toString()
         }

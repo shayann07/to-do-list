@@ -20,6 +20,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
 
     // Task counts as LiveData
     val todayTaskCount: LiveData<Int>
+    val scheduledTasksCount: LiveData<Int>
     val flaggedTasksCount: LiveData<Int>
     val incompleteTasksCount: LiveData<Int>
     val completedTasksCount: LiveData<Int>
@@ -27,8 +28,13 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.MONTH, 12)
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH))
+        val endDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
 
         todayTaskCount = repository.getTodayTaskCountFlow(todayDate).asLiveData()
+        scheduledTasksCount = repository.getScheduledTasksCountFlow(todayDate, endDate).asLiveData()
         flaggedTasksCount = repository.getFlaggedTaskCountFlow().asLiveData()
         incompleteTasksCount = repository.getIncompleteTasksCountFlow().asLiveData()
         completedTasksCount = repository.getCompletedTasksCountFlow().asLiveData()
@@ -41,6 +47,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
     val morningTasksLiveData = MutableLiveData<List<Tasks>>()
     val afternoonTasksLiveData = MutableLiveData<List<Tasks>>()
     val tonightTasksLiveData = MutableLiveData<List<Tasks>>()
+    val tasksByMonth = MutableLiveData<Map<String, List<Tasks>>>()
     val flaggedTasks = MutableLiveData<List<Tasks>>()
     val incompleteTasks = MutableLiveData<List<Tasks>>()
     val completedTasks = MutableLiveData<List<Tasks>>()
@@ -67,6 +74,37 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+
+    fun fetchScheduledTasks() {
+        viewModelScope.launch {
+            try {
+                val calendar = Calendar.getInstance()
+                val startYear = calendar.get(Calendar.YEAR)
+                val startMonth = calendar.get(Calendar.MONTH)
+
+                val startDate = "${startYear}-${String.format("%02d", startMonth + 1)}-01"
+                calendar.add(Calendar.MONTH, 12)
+                val endDate = "${calendar.get(Calendar.YEAR)}-${
+                    String.format(
+                        "%02d", calendar.get(Calendar.MONTH) + 1
+                    )
+                }-01"
+
+                val tasks = repository.getScheduledTasks(startDate, endDate)
+
+                // Group tasks by "MMMM yyyy" for the next 12 months
+                val groupedTasks = tasks.groupBy { task ->
+                    SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(
+                        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(task.date ?: "")!!
+                    )
+                }
+                tasksByMonth.postValue(groupedTasks)
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Failed to fetch tasks for the next 12 months: ${e.message}")
+            }
+        }
+    }
+
 
     // Fetch tasks from Firebase and save them to Room
     fun fetchTasks(uid: String) {
