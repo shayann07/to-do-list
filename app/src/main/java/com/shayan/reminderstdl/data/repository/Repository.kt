@@ -92,8 +92,9 @@ class Repository(context: Context) {
         taskDao.updateTask(task)
     }
 
-    // Clear All Tasks Locally
-    suspend fun clearAllTasks() = withContext(Dispatchers.IO) { taskDao.clearAllTasks() }
+    // Clear Completed Tasks Locally
+    suspend fun clearAllCompletedTasks() =
+        withContext(Dispatchers.IO) { taskDao.clearAllCompletedTasks() }
 
     //  Save User Locally
     private suspend fun saveUserLocally(user: User) {
@@ -177,6 +178,33 @@ class Repository(context: Context) {
             Result.failure(e)
         }
     }
+
+    suspend fun deleteCompletedTasksFromFirebaseAndRoom(isCompleted: Boolean): Result<Boolean> {
+        return try {
+            // Check if the user is logged in
+            val uid = auth.currentUser?.uid ?: throw Exception("User not logged in")
+
+            // Fetch completed tasks from Firebase
+            val firebaseResult = database.collection("Users").document(uid).collection("Tasks")
+                .whereEqualTo("completed", isCompleted).get().await()
+
+            // Delete all completed tasks from Firebase
+            for (document in firebaseResult.documents) {
+                document.reference.delete().await()
+            }
+
+            // Delete all completed tasks from Room database
+            taskDao.clearAllCompletedTasks()
+
+            // Log success
+            Log.d("Repository", "Completed tasks deleted successfully from Firebase and Room")
+            Result.success(true)
+        } catch (e: Exception) {
+            Log.e("Repository", "Error in deleteCompletedTasksFromFirebaseAndRoom: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
 
     // Toggle task completion status in Firebase and Room
     suspend fun toggleTaskCompletion(

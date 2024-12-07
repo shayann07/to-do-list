@@ -2,6 +2,7 @@ package com.shayan.reminderstdl.ui.viewmodel
 
 import android.app.Application
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -52,6 +53,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
     val incompleteTasks = MutableLiveData<List<Tasks>>()
     val completedTasks = MutableLiveData<List<Tasks>>()
     val totalTasks = MutableLiveData<List<Tasks>>()
+    val taskDeletionStatus = MutableLiveData<Boolean>()
 
     // Fetch today's tasks and categorize them
     fun fetchTodayTasks() {
@@ -111,16 +113,11 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 val result = repository.fetchTasksFromFirebaseAndSaveToRoom(uid)
-                result.fold(onSuccess = { tasks ->
-                    val todayDate =
-                        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-                    val todayTasks = tasks.filter { it.date == todayDate && !it.isCompleted }
-                    tasksList.postValue(todayTasks)
+                result.fold(onSuccess = {
+                    Toast.makeText(
+                        getApplication(), "Tasks fetched successfully!", Toast.LENGTH_SHORT
+                    ).show()
 
-                    val (morning, afternoon, tonight) = categorizeTasksByTime(todayTasks)
-                    morningTasksLiveData.postValue(morning)
-                    afternoonTasksLiveData.postValue(afternoon)
-                    tonightTasksLiveData.postValue(tonight)
                 }, onFailure = { exception ->
                     Log.e("ViewModel", "Failed to fetch tasks: ${exception.message}")
                 })
@@ -184,18 +181,13 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val result = repository.toggleTaskCompletion(firebaseTaskId, isCompleted)
                 result.fold(onSuccess = {
-                    // Fetch only incomplete tasks again to update the UI
-                    val todayDate =
-                        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-                    val tasks = repository.getTasksForToday(todayDate)
-                    val incompleteTasks = tasks.filter { !it.isCompleted }
 
-                    tasksList.postValue(incompleteTasks)
-
-                    val (morning, afternoon, tonight) = categorizeTasksByTime(incompleteTasks)
-                    morningTasksLiveData.postValue(morning)
-                    afternoonTasksLiveData.postValue(afternoon)
-                    tonightTasksLiveData.postValue(tonight)
+                    fetchTodayTasks()
+                    fetchScheduledTasks()
+                    fetchIncompleteTasks()
+                    fetchFlaggedTasks()
+                    fetchTotalTasks()
+                    fetchCompletedTasks()
 
                     onCompletion(true, "Task successfully updated!")
                 }, onFailure = { exception ->
@@ -244,6 +236,34 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
         return Triple(morning, afternoon, tonight)
+    }
+
+
+    // New method to delete completed tasks
+    fun deleteCompletedTasks(isCompleted: Boolean) {
+        viewModelScope.launch {
+            try {
+                // Call the repository function to delete tasks from Firebase and Room
+                val result = repository.deleteCompletedTasksFromFirebaseAndRoom(isCompleted)
+
+                result.fold(onSuccess = {
+                    // Post success status
+                    taskDeletionStatus.postValue(true)
+                    fetchCompletedTasks()
+                    Log.d(
+                        "ViewModel", "Completed tasks deleted successfully from Firebase and Room"
+                    )
+                }, onFailure = { exception ->
+                    // Post failure status
+                    taskDeletionStatus.postValue(false)
+                    Log.e("ViewModel", "Failed to delete completed tasks: ${exception.message}")
+                })
+            } catch (e: Exception) {
+                // Handle any unexpected errors
+                taskDeletionStatus.postValue(false)
+                Log.e("ViewModel", "Unexpected error while deleting tasks: ${e.message}")
+            }
+        }
     }
 
     // Login user
