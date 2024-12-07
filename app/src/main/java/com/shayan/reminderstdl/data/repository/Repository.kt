@@ -11,6 +11,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class Repository(context: Context) {
 
@@ -59,14 +62,16 @@ class Repository(context: Context) {
     fun getFlaggedTaskCountFlow(): Flow<Int> = taskDao.getFlaggedTaskCount()
 
     // Update Task Completion Locally
-    suspend fun updateLocalTaskCompletion(firebaseTaskId: String, isCompleted: Boolean) =
-        withContext(Dispatchers.IO) {
-            taskDao.updateTaskCompletion(firebaseTaskId, isCompleted)
-            Log.d(
-                "Repository",
-                "Local task status updated: ID=$firebaseTaskId, isCompleted=$isCompleted"
-            )
-        }
+    suspend fun updateLocalTaskCompletion(
+        firebaseTaskId: String, isCompleted: Boolean, dateCompleted: String?
+    ) = withContext(Dispatchers.IO) {
+        taskDao.updateTaskCompletion(firebaseTaskId, isCompleted, dateCompleted)
+        Log.d(
+            "Repository",
+            "Local task status updated: ID=$firebaseTaskId, isCompleted=$isCompleted, dateCompleted=$dateCompleted"
+        )
+    }
+
 
     // Fetch (all.whereNotEqual("completed", true)) tasks from Room and their count
     suspend fun getIncompleteTasks(): List<Tasks> =
@@ -164,12 +169,15 @@ class Repository(context: Context) {
 
     // Update Firebase Task Completion
     suspend fun updateFirebaseTaskCompletion(
-        firebaseTaskId: String, isCompleted: Boolean
+        firebaseTaskId: String, isCompleted: Boolean, dateCompleted: String?
     ): Result<Boolean> {
         return try {
             val uid = auth.currentUser?.uid ?: throw Exception("User not logged in")
+            val updates = mapOf(
+                "completed" to isCompleted, "dateCompleted" to dateCompleted
+            )
             database.collection("Users").document(uid).collection("Tasks").document(firebaseTaskId)
-                .update("completed", isCompleted).await()
+                .update(updates).await()
             Result.success(true)
         } catch (e: Exception) {
             Log.e(
@@ -211,10 +219,19 @@ class Repository(context: Context) {
         firebaseTaskId: String, isCompleted: Boolean
     ): Result<Boolean> {
         return try {
-            val firebaseResult = updateFirebaseTaskCompletion(firebaseTaskId, isCompleted)
+            val dateCompleted = if (isCompleted) {
+                SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+            } else {
+                null
+            }
+            val firebaseResult =
+                updateFirebaseTaskCompletion(firebaseTaskId, isCompleted, dateCompleted)
             if (firebaseResult.isSuccess) {
-                updateLocalTaskCompletion(firebaseTaskId, isCompleted)
-                Log.d("Repository", "Task completion toggled successfully for ID: $firebaseTaskId")
+                updateLocalTaskCompletion(firebaseTaskId, isCompleted, dateCompleted)
+                Log.d(
+                    "Repository",
+                    "Task completion toggled successfully for ID: $firebaseTaskId with dateCompleted: $dateCompleted"
+                )
                 Result.success(true)
             } else {
                 Log.e("Repository", "Failed to update task completion in Firebase")
@@ -225,6 +242,7 @@ class Repository(context: Context) {
             Result.failure(e)
         }
     }
+
 
     // Register User
     suspend fun registerUser(user: User, password: String): Result<Unit> {

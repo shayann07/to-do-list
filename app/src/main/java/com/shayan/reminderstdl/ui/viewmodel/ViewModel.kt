@@ -55,6 +55,25 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
     val totalTasks = MutableLiveData<List<Tasks>>()
     val taskDeletionStatus = MutableLiveData<Boolean>()
 
+    // Fetch tasks from Firebase and save them to Room
+    fun fetchTasks(uid: String) {
+        viewModelScope.launch {
+            try {
+                val result = repository.fetchTasksFromFirebaseAndSaveToRoom(uid)
+                result.fold(onSuccess = {
+                    Toast.makeText(
+                        getApplication(), "Tasks fetched successfully!", Toast.LENGTH_SHORT
+                    ).show()
+
+                }, onFailure = { exception ->
+                    Log.e("ViewModel", "Failed to fetch tasks: ${exception.message}")
+                })
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Failed to fetch tasks: ${e.message}")
+            }
+        }
+    }
+
     // Fetch today's tasks and categorize them
     fun fetchTodayTasks() {
         val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
@@ -106,27 +125,6 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
-
-
-    // Fetch tasks from Firebase and save them to Room
-    fun fetchTasks(uid: String) {
-        viewModelScope.launch {
-            try {
-                val result = repository.fetchTasksFromFirebaseAndSaveToRoom(uid)
-                result.fold(onSuccess = {
-                    Toast.makeText(
-                        getApplication(), "Tasks fetched successfully!", Toast.LENGTH_SHORT
-                    ).show()
-
-                }, onFailure = { exception ->
-                    Log.e("ViewModel", "Failed to fetch tasks: ${exception.message}")
-                })
-            } catch (e: Exception) {
-                Log.e("ViewModel", "Failed to fetch tasks: ${e.message}")
-            }
-        }
-    }
-
 
     fun fetchFlaggedTasks() {
         viewModelScope.launch {

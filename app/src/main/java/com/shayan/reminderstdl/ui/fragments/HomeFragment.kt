@@ -1,10 +1,7 @@
 package com.shayan.reminderstdl.ui.fragments
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.Toast
@@ -24,14 +21,14 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var viewModel: ViewModel
+    private lateinit var firebaseAuth: FirebaseAuth
+
     private var isArrowDownICloud = true
     private var isArrowDownOutlook = true
-    private lateinit var firebaseAuth: FirebaseAuth
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout using View Binding
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -39,75 +36,82 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupFirebaseAuth()
+        initializeViewModel()
+        fetchUserTasks()
+        observeTaskCounts()
+        setupClickListeners()
+    }
+
+    private fun setupFirebaseAuth() {
         firebaseAuth = FirebaseAuth.getInstance()
+    }
 
+    private fun initializeViewModel() {
         viewModel = ViewModelProvider(requireActivity())[ViewModel::class.java]
+    }
 
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
+    private fun fetchUserTasks() {
+        val userId = firebaseAuth.currentUser?.uid
         if (userId != null) {
             viewModel.fetchTasks(userId)
         } else {
             Toast.makeText(requireContext(), "No tasks to fetch", Toast.LENGTH_SHORT).show()
         }
+    }
 
-        // Update UI with observed count
-        viewModel.todayTaskCount.observe(viewLifecycleOwner) { count ->
-            binding.todayCount.text = count.toString()
+    private fun observeTaskCounts() {
+        with(viewModel) {
+            todayTaskCount.observe(viewLifecycleOwner) { count ->
+                binding.todayCount.text = count.toString()
+            }
+            scheduledTasksCount.observe(viewLifecycleOwner) { count ->
+                binding.scheduledCount.text = count.toString()
+            }
+            flaggedTasksCount.observe(viewLifecycleOwner) { count ->
+                binding.flaggedCount.text = count.toString()
+            }
+            incompleteTasksCount.observe(viewLifecycleOwner) { count ->
+                binding.allCount.text = count.toString()
+                binding.outlookCount.text = count.toString()
+            }
+            totalTaskCount.observe(viewLifecycleOwner) { count ->
+                binding.iCloudCount.text = count.toString()
+            }
         }
+    }
 
-        viewModel.scheduledTasksCount.observe(viewLifecycleOwner) { count ->
-            binding.scheduledCount.text = count.toString()
-        }
+    private fun setupClickListeners() {
+        with(binding) {
+            // Navigation to different fragments
+            todayScreen.setOnClickListener { navigateTo(R.id.homeFragment_to_todayFragment) }
+            scheduledScreen.setOnClickListener { navigateTo(R.id.homeFragment_to_scheduledFragment) }
+            allScreen.setOnClickListener { navigateTo(R.id.homeFragment_to_allFragment) }
+            flaggedScreen.setOnClickListener { navigateTo(R.id.homeFragment_to_flaggedFragment) }
+            completedScreen.setOnClickListener { navigateTo(R.id.homeFragment_to_completedFragment) }
+            iCloudContainer.setOnClickListener { navigateTo(R.id.homeFragment_to_iCloudFragment) }
+            outlookContainer.setOnClickListener { navigateTo(R.id.homeFragment_to_outlookFragment) }
 
-        viewModel.flaggedTasksCount.observe(viewLifecycleOwner) { count ->
-            binding.flaggedCount.text = count.toString()
-        }
+            // Log-out menu
+            menuImageView.setOnClickListener { showPopupMenu() }
 
-        viewModel.incompleteTasksCount.observe(viewLifecycleOwner) { count ->
-            binding.allCount.text = count.toString()
-            binding.outlookCount.text = count.toString()
-        }
+            // Toggling visibility of containers
+            textviewICloud.setOnClickListener {
+                toggleVisibility(iCloudContainer, ::isArrowDownICloud)
+            }
+            textviewOutlook.setOnClickListener {
+                toggleVisibility(outlookContainer, ::isArrowDownOutlook)
+            }
 
-        viewModel.totalTaskCount.observe(viewLifecycleOwner) { count ->
-            binding.iCloudCount.text = count.toString()
+            // New Reminder button
+            newReminderButton.setOnClickListener {
+                navigateTo(R.id.homeFragment_to_newReminderFragment)
+            }
         }
+    }
 
-        binding.todayScreen.setOnClickListener {
-            findNavController().navigate(R.id.homeFragment_to_todayFragment)
-        }
-        binding.scheduledScreen.setOnClickListener {
-            findNavController().navigate(R.id.homeFragment_to_scheduledFragment)
-        }
-        binding.allScreen.setOnClickListener {
-            findNavController().navigate(R.id.homeFragment_to_allFragment)
-        }
-        binding.flaggedScreen.setOnClickListener {
-            findNavController().navigate(R.id.homeFragment_to_flaggedFragment)
-        }
-        binding.completedScreen.setOnClickListener {
-            findNavController().navigate(R.id.homeFragment_to_completedFragment)
-        }
-        binding.iCloudContainer.setOnClickListener {
-            findNavController().navigate(R.id.homeFragment_to_iCloudFragment)
-        }
-        binding.outlookContainer.setOnClickListener {
-            findNavController().navigate(R.id.homeFragment_to_outlookFragment)
-        }
-
-        // Set up menu for log-out functionality
-        binding.menuImageView.setOnClickListener { showPopupMenu() }
-
-        // Toggle visibility for containers on click
-        binding.textviewICloud.setOnClickListener {
-            toggleVisibility(binding.iCloudContainer, ::isArrowDownICloud)
-        }
-        binding.textviewOutlook.setOnClickListener {
-            toggleVisibility(binding.outlookContainer, ::isArrowDownOutlook)
-        }
-
-        binding.newReminderButton.setOnClickListener {
-            findNavController().navigate(R.id.homeFragment_to_newReminderFragment)
-        }
+    private fun navigateTo(actionId: Int) {
+        findNavController().navigate(actionId)
     }
 
     private fun showPopupMenu() {
@@ -121,14 +125,9 @@ class HomeFragment : Fragment() {
     private fun handleMenuItemClick(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.log_out -> {
-                // Sign out the user using Firebase Authentication
                 firebaseAuth.signOut()
-
-                // Show Snackbar after logging out
                 Snackbar.make(binding.root, "Successfully logged out", Snackbar.LENGTH_SHORT).show()
-
-                // Navigate back to the login screen
-                findNavController().navigate(R.id.homeFragment_to_loginFragment)
+                navigateTo(R.id.homeFragment_to_loginFragment)
                 true
             }
 
@@ -143,12 +142,18 @@ class HomeFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.fetchTodayTasks()  // Refresh task count
-        viewModel.fetchIncompleteTasks()
-        viewModel.fetchCompletedTasks()
-        viewModel.fetchFlaggedTasks()
+        refreshTaskCounts()
     }
 
+    private fun refreshTaskCounts() {
+        with(viewModel) {
+            fetchTodayTasks()
+            fetchScheduledTasks()
+            fetchIncompleteTasks()
+            fetchCompletedTasks()
+            fetchFlaggedTasks()
+        }
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

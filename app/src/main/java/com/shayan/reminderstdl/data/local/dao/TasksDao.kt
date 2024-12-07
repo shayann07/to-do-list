@@ -35,9 +35,8 @@ interface TasksDao {
     @Query("SELECT COUNT(*) FROM tasks_table WHERE flag = 1 AND isCompleted = 0")
     fun getFlaggedTaskCount(): Flow<Int>
 
-    @Query("UPDATE tasks_table SET isCompleted = :isCompleted WHERE firebaseTaskId = :firebaseTaskId")
-    suspend fun updateTaskCompletion(firebaseTaskId: String, isCompleted: Boolean)
-
+    @Query("UPDATE tasks_table SET isCompleted = :isCompleted, dateCompleted = :dateCompleted WHERE firebaseTaskId = :firebaseTaskId")
+    suspend fun updateTaskCompletion(firebaseTaskId: String, isCompleted: Boolean, dateCompleted: String?)
 
     @Query("SELECT * FROM tasks_table WHERE isCompleted = 0")
     suspend fun getIncompleteTasks(): List<Tasks>

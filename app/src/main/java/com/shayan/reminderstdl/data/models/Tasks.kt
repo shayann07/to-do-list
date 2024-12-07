@@ -10,10 +10,10 @@ data class Tasks(
     val title: String = "",
     val notes: String? = null,
     val date: String? = null,
+    val dateCompleted: String? = null,
     val time: String? = null,
     val timeCategory: String? = null,
     val timestamp: Long = System.currentTimeMillis(),
-    val location: String? = null,
     val flag: Boolean = false,
     @get:PropertyName("completed") @set:PropertyName("completed") var isCompleted: Boolean = false
 )
