@@ -60,6 +60,6 @@ interface TasksDao {
     @Update
     fun updateTask(task: Tasks)
 
-    @Query("DELETE FROM tasks_table")
-    suspend fun clearAllTasks()
+    @Query("DELETE FROM tasks_table WHERE isCompleted = 1")
+    suspend fun clearAllCompletedTasks()
 }

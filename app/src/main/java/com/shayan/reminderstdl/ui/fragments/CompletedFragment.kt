@@ -46,6 +46,10 @@ class CompletedFragment : Fragment(), TaskAdapter.TaskCompletionListener {
             binding.completedRecycler.visibility =
                 if (completedTasks.isNullOrEmpty()) View.GONE else View.VISIBLE
         }
+
+        binding.clearCompleted.setOnClickListener {
+            viewModel.deleteCompletedTasks(true)
+        }
     }
 
     override fun onTaskCompletionToggled(
