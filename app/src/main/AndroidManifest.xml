@@ -3,19 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
-    <queries>
-        <!-- Declare the package for Google Maps -->
-        <package android:name="com.google.android.apps.maps" />
-
-        <!-- Optionally, allow other apps that handle geo intents -->
-        <intent>
-            <action android:name="android.intent.action.VIEW" />
-            <data android:scheme="geo" />
-        </intent>
-    </queries>
 
     <application
         android:allowBackup="true"

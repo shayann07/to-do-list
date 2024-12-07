@@ -24,7 +24,6 @@
             android:layout_gravity="end"
             android:layout_marginEnd="4dp"
             android:layout_marginBottom="2dp"
-            android:animateLayoutChanges="true"
             android:clickable="true"
             android:contentDescription="@string/dropdown_menu"
             android:focusable="true"
@@ -506,17 +505,5 @@
             app:iconTint="@color/light_blue"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/add_list_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:fontFamily="@font/roboto_regular"
-            android:text="@string/add_list"
-            android:textColor="@color/light_blue"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

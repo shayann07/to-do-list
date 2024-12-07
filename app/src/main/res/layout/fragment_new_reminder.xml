@@ -209,45 +209,6 @@
                     android:layout_centerVertical="true" />
             </RelativeLayout>
 
-            <!-- Location Section -->
-            <RelativeLayout
-                android:id="@+id/location_container"
-                style="@style/ContainerStyle">
-
-                <ImageView
-                    android:id="@+id/location_icon"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="8dp"
-                    android:src="@drawable/_16279_location_arrow_icon" />
-
-                <TextView
-                    android:id="@+id/location_button"
-                    style="@style/ItemTextStyle"
-                    android:layout_marginStart="8dp"
-                    android:layout_toEndOf="@+id/location_icon"
-                    android:text="@string/location" />
-
-                <ImageView
-                    android:id="@+id/current_location_icon"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="8dp"
-                    android:layout_toStartOf="@+id/location_switch"
-                    android:src="@drawable/_216353_location_locator_map_marker_pin_icon"
-                    android:visibility="gone" />
-
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/location_switch"
-                    style="@style/SwitchStyle"
-                    android:layout_alignParentEnd="true" />
-
-
-            </RelativeLayout>
-
             <!-- Flag Section -->
             <RelativeLayout
                 android:id="@+id/flag_container"

@@ -58,7 +58,6 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.recyclerview)
     implementation(libs.androidx.room.runtime)
-    implementation(libs.play.services.location)
     implementation(libs.androidx.room.ktx)
     implementation(libs.firebase.auth)
     ksp(libs.androidx.room.compiler)
