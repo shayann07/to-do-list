@@ -264,6 +264,12 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun clearAllTasks() {
+        viewModelScope.launch {
+            repository.clearAllTasks()
+        }
+    }
+
     // Login user
     fun login(
         email: String, password: String, onSuccess: (User) -> Unit, onError: (String) -> Unit
@@ -279,7 +285,12 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // Register user
-    fun register(user: User, password: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+    fun register(
+        user: User,
+        password: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
 
         viewModelScope.launch {
             val result = repository.registerUser(user, password)

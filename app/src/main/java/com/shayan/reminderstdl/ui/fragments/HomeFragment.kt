@@ -126,6 +126,7 @@ class HomeFragment : Fragment() {
         return when (item.itemId) {
             R.id.log_out -> {
                 firebaseAuth.signOut()
+                viewModel.clearAllTasks()
                 Snackbar.make(binding.root, "Successfully logged out", Snackbar.LENGTH_SHORT).show()
                 navigateTo(R.id.homeFragment_to_loginFragment)
                 true

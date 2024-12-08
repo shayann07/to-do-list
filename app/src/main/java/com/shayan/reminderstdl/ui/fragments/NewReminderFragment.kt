@@ -78,8 +78,23 @@ class NewReminderFragment : Fragment() {
 
     private fun setupDateSwitch() {
         binding.dateSwitch.setOnCheckedChangeListener { _, isChecked ->
-            binding.calendarContainer.visibility = if (isChecked) View.VISIBLE else View.GONE
-            if (!isChecked) selectedDate = null
+            if (isChecked) {
+                // Set the selectedDate to the current date
+                val currentDate = getCurrentDate()
+                selectedDate = currentDate
+
+                // Update the UI
+                binding.dateDisplay.text = currentDate
+                showSnackbar("Date set to: $currentDate")
+
+                // Show the calendar container
+                binding.calendarContainer.visibility = View.VISIBLE
+            } else {
+                // Clear the selected date when the switch is toggled off
+                selectedDate = null
+                binding.dateDisplay.text = ""
+                binding.calendarContainer.visibility = View.GONE
+            }
         }
 
         binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->

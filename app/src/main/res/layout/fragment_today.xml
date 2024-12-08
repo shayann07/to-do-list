@@ -41,31 +41,40 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="16dp"
+                    android:layout_marginBottom="4dp"
                     android:fontFamily="@font/roboto_bold"
                     android:padding="8dp"
                     android:text="@string/today"
                     android:textColor="@color/light_blue"
-                    android:textSize="24sp"
+                    android:textSize="28sp"
                     android:textStyle="bold" />
+
+                <View
+                    android:id="@+id/view1"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/today_text"
+                    android:background="@color/my_gray" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/today_text"
-                    android:layout_marginHorizontal="16dp"
-                    android:orientation="vertical"
-                    android:padding="8dp">
+                    android:layout_below="@+id/view1"
+                    android:orientation="vertical">
 
                     <!-- Morning Section -->
                     <TextView
                         android:id="@+id/text_morning"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="16dp"
+                        android:layout_marginVertical="4dp"
                         android:fontFamily="@font/roboto_bold"
-                        android:paddingBottom="8dp"
+                        android:padding="8dp"
                         android:text="@string/morning"
                         android:textColor="@android:color/darker_gray"
-                        android:textSize="18sp" />
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/recycler_morning"
@@ -74,16 +83,24 @@
                         android:layout_marginBottom="16dp"
                         android:visibility="gone" />
 
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/my_gray" />
+
                     <!-- Afternoon Section -->
                     <TextView
                         android:id="@+id/text_afternoon"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="16dp"
+                        android:layout_marginVertical="4dp"
                         android:fontFamily="@font/roboto_bold"
-                        android:paddingBottom="8dp"
+                        android:padding="8dp"
                         android:text="@string/afternoon"
                         android:textColor="@android:color/darker_gray"
-                        android:textSize="18sp" />
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/recycler_afternoon"
@@ -92,50 +109,37 @@
                         android:layout_marginBottom="16dp"
                         android:visibility="gone" />
 
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/my_gray" />
+
                     <!-- Tonight Section -->
                     <TextView
                         android:id="@+id/text_tonight"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="16dp"
+                        android:layout_marginVertical="4dp"
                         android:fontFamily="@font/roboto_bold"
-                        android:paddingBottom="8dp"
+                        android:padding="8dp"
                         android:text="@string/tonight"
                         android:textColor="@android:color/darker_gray"
-                        android:textSize="18sp" />
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/recycler_tonight"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:visibility="gone" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/my_gray" />
                 </LinearLayout>
             </RelativeLayout>
         </ScrollView>
     </LinearLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/button_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:animateLayoutChanges="true">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/new_reminder_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:fontFamily="@font/roboto_bold"
-            android:text="@string/new_reminder"
-            android:textColor="@color/light_blue"
-            android:textSize="16sp"
-            app:icon="@drawable/plus_icon"
-            app:iconGravity="textStart"
-            app:iconPadding="8dp"
-            app:iconSize="24dp"
-            app:iconTint="@color/light_blue"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
 </RelativeLayout>
