@@ -38,9 +38,6 @@ class TodayFragment : Fragment(), TaskAdapter.TaskCompletionListener {
         binding.backToHomeBtn.setOnClickListener {
             findNavController().navigate(R.id.todayFragment_to_homeFragment)
         }
-        binding.newReminderButton.setOnClickListener {
-            findNavController().navigate(R.id.todayFragment_to_newReminderFragment)
-        }
 
         // Initialize RecyclerViews
         binding.recyclerMorning.layoutManager = LinearLayoutManager(context)
@@ -89,6 +86,11 @@ class TodayFragment : Fragment(), TaskAdapter.TaskCompletionListener {
                 Toast.LENGTH_SHORT
             ).show()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.fetchTodayTasks()
     }
 
     override fun onDestroyView() {

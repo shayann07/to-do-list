@@ -11,7 +11,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:animateLayoutChanges="true"
         android:orientation="vertical">
 
         <TextView
@@ -31,19 +30,18 @@
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:animateLayoutChanges="true"
             android:background="@color/black">
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:animateLayoutChanges="true">
+                android:layout_height="wrap_content">
 
                 <TextView
                     android:id="@+id/scheduled_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="16dp"
+                    android:layout_marginBottom="4dp"
                     android:fontFamily="@font/roboto_bold"
                     android:padding="8dp"
                     android:text="@string/scheduled"
@@ -51,204 +49,172 @@
                     android:textSize="24sp"
                     android:textStyle="bold" />
 
+                <View
+                    android:id="@+id/view2"
+                    style="@style/DividerStyle"
+                    android:layout_below="@id/scheduled_text" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/scheduled_text"
-                    android:layout_marginHorizontal="16dp"
-                    android:animateLayoutChanges="true"
-                    android:orientation="vertical"
-                    android:padding="8dp">
+                    android:layout_below="@+id/view2"
+                    android:orientation="vertical">
 
-                    <!-- Morning Section -->
                     <TextView
                         android:id="@+id/tv1"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/roboto_bold"
-                        android:paddingBottom="12dp"
-                        android:text="@string/abc"
-                        android:textColor="@android:color/darker_gray"
-                        android:textSize="22sp" />
+                        style="@style/HeaderTextStyle"
+                        android:text="@string/abc" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv1"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
-                        android:visibility="gone" />
+                        style="@style/RecyclerViewStyle" />
 
-                    <!-- Afternoon Section -->
+                    <View
+                        android:id="@+id/divider1"
+                        style="@style/DividerStyle" />
+
                     <TextView
                         android:id="@+id/tv2"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/roboto_bold"
-                        android:paddingBottom="12dp"
-                        android:text="@string/abc"
-                        android:textColor="@android:color/darker_gray"
-                        android:textSize="22sp" />
+                        style="@style/HeaderTextStyle"
+                        android:text="@string/abc" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv2"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
-                        android:visibility="gone" />
+                        style="@style/RecyclerViewStyle" />
 
-                    <!-- Tonight Section -->
+                    <View
+                        android:id="@+id/divider2"
+                        style="@style/DividerStyle" />
+
                     <TextView
                         android:id="@+id/tv3"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/roboto_bold"
-                        android:paddingBottom="12dp"
-                        android:text="@string/abc"
-                        android:textColor="@android:color/darker_gray"
-                        android:textSize="22sp" />
+                        style="@style/HeaderTextStyle"
+                        android:text="@string/abc" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv3"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:visibility="gone" />
+                        style="@style/RecyclerViewStyle" />
 
-                    <!-- Tonight Section -->
+                    <View
+                        android:id="@+id/divider3"
+                        style="@style/DividerStyle" />
+
                     <TextView
                         android:id="@+id/tv4"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/roboto_bold"
-                        android:paddingBottom="12dp"
-                        android:text="@string/abc"
-                        android:textColor="@android:color/darker_gray"
-                        android:textSize="22sp" />
+                        style="@style/HeaderTextStyle"
+                        android:text="@string/abc" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv4"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:visibility="gone" /><!-- Tonight Section -->
+                        style="@style/RecyclerViewStyle" />
+
+                    <View
+                        android:id="@+id/divider4"
+                        style="@style/DividerStyle" />
+
                     <TextView
                         android:id="@+id/tv5"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/roboto_bold"
-                        android:paddingBottom="12dp"
-                        android:text="@string/abc"
-                        android:textColor="@android:color/darker_gray"
-                        android:textSize="22sp" />
+                        style="@style/HeaderTextStyle"
+                        android:text="@string/abc" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv5"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:visibility="gone" /><!-- Tonight Section -->
+                        style="@style/RecyclerViewStyle" />
+
+                    <View
+                        android:id="@+id/divider5"
+                        style="@style/DividerStyle" />
+
                     <TextView
                         android:id="@+id/tv6"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/roboto_bold"
-                        android:paddingBottom="12dp"
-                        android:text="@string/abc"
-                        android:textColor="@android:color/darker_gray"
-                        android:textSize="22sp" />
+                        style="@style/HeaderTextStyle"
+                        android:text="@string/abc" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv6"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:visibility="gone" /><!-- Tonight Section -->
+                        style="@style/RecyclerViewStyle" />
+
+                    <View
+                        android:id="@+id/divider6"
+                        style="@style/DividerStyle" />
+
                     <TextView
                         android:id="@+id/tv7"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/roboto_bold"
-                        android:paddingBottom="12dp"
-                        android:text="@string/abc"
-                        android:textColor="@android:color/darker_gray"
-                        android:textSize="22sp" />
+                        style="@style/HeaderTextStyle"
+                        android:text="@string/abc" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv7"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:visibility="gone" /><!-- Tonight Section -->
+                        style="@style/RecyclerViewStyle" />
+
+                    <View
+                        android:id="@+id/divider7"
+                        style="@style/DividerStyle" />
+
                     <TextView
                         android:id="@+id/tv8"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/roboto_bold"
-                        android:paddingBottom="12dp"
-                        android:text="@string/abc"
-                        android:textColor="@android:color/darker_gray"
-                        android:textSize="22sp" />
+                        style="@style/HeaderTextStyle"
+                        android:text="@string/abc" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv8"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:visibility="gone" /><!-- Tonight Section -->
+                        style="@style/RecyclerViewStyle" />
+
+                    <View
+                        android:id="@+id/divider8"
+                        style="@style/DividerStyle" />
+
                     <TextView
                         android:id="@+id/tv9"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/roboto_bold"
-                        android:paddingBottom="12dp"
-                        android:text="@string/abc"
-                        android:textColor="@android:color/darker_gray"
-                        android:textSize="22sp" />
+                        style="@style/HeaderTextStyle"
+                        android:text="@string/abc" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv9"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:visibility="gone" /><!-- Tonight Section -->
+                        style="@style/RecyclerViewStyle" />
+
+                    <View
+                        android:id="@+id/divider9"
+                        style="@style/DividerStyle" />
+
                     <TextView
                         android:id="@+id/tv10"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/roboto_bold"
-                        android:paddingBottom="12dp"
-                        android:text="@string/abc"
-                        android:textColor="@android:color/darker_gray"
-                        android:textSize="22sp" />
+                        style="@style/HeaderTextStyle"
+                        android:text="@string/abc" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv10"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:visibility="gone" /><!-- Tonight Section -->
+                        style="@style/RecyclerViewStyle" />
+
+                    <View
+                        android:id="@+id/divider10"
+                        style="@style/DividerStyle" />
+
                     <TextView
                         android:id="@+id/tv11"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/roboto_bold"
-                        android:paddingBottom="12dp"
-                        android:text="@string/abc"
-                        android:textColor="@android:color/darker_gray"
-                        android:textSize="22sp" />
+                        style="@style/HeaderTextStyle"
+                        android:text="@string/abc" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv11"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:visibility="gone" /><!-- Tonight Section -->
+                        style="@style/RecyclerViewStyle" />
+
+                    <View
+                        android:id="@+id/divider11"
+                        style="@style/DividerStyle" />
+
                     <TextView
                         android:id="@+id/tv12"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/roboto_bold"
-                        android:paddingBottom="12dp"
-                        android:text="@string/abc"
-                        android:textColor="@android:color/darker_gray"
-                        android:textSize="22sp" />
+                        style="@style/HeaderTextStyle"
+                        android:text="@string/abc" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv12"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:visibility="gone" />
+                        style="@style/RecyclerViewStyle" />
+
+                    <View
+                        android:id="@+id/divider12"
+                        style="@style/DividerStyle" />
                 </LinearLayout>
             </RelativeLayout>
         </ScrollView>

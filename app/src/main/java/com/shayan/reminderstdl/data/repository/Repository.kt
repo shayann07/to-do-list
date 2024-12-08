@@ -101,6 +101,9 @@ class Repository(context: Context) {
     suspend fun clearAllCompletedTasks() =
         withContext(Dispatchers.IO) { taskDao.clearAllCompletedTasks() }
 
+    suspend fun clearAllTasks() =
+        withContext(Dispatchers.IO) { taskDao.clearAllTasks() }
+
     //  Save User Locally
     private suspend fun saveUserLocally(user: User) {
         withContext(Dispatchers.IO) {
@@ -202,7 +205,7 @@ class Repository(context: Context) {
             }
 
             // Delete all completed tasks from Room database
-            taskDao.clearAllCompletedTasks()
+            clearAllCompletedTasks()
 
             // Log success
             Log.d("Repository", "Completed tasks deleted successfully from Firebase and Room")
