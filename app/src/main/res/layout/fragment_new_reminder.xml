@@ -64,11 +64,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="4dp"
+            android:autofillHints="title"
             android:background="@null"
             android:fontFamily="@font/roboto_regular"
             android:hint="@string/title"
             android:inputType="textShortMessage"
             android:padding="8dp"
+            android:textColor="@color/white"
             android:textColorHint="@color/darker_gray"
             android:textSize="16sp" />
 
@@ -77,6 +79,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="4dp"
+            android:autofillHints="notes"
             android:background="@null"
             android:fontFamily="@font/roboto_regular"
             android:gravity="top"
@@ -85,6 +88,7 @@
             android:minHeight="100dp"
             android:padding="8dp"
             android:scrollHorizontally="false"
+            android:textColor="@color/white"
             android:textColorHint="@color/darker_gray"
             android:textSize="16sp" />
     </LinearLayout>
@@ -124,8 +128,6 @@
                     android:layout_toEndOf="@+id/date_icon"
                     android:text="@string/date" />
 
-                <!-- Time Display -->
-
                 <TextView
                     android:id="@+id/date_display"
                     android:layout_width="wrap_content"
@@ -159,7 +161,7 @@
                         android:id="@+id/calendar_view"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@null" />
+                        android:theme="@style/DarkCalendarViewTheme" />
 
                 </LinearLayout>
 
