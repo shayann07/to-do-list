@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.shayan.reminderstdl.data.models.Tasks
 import com.shayan.reminderstdl.data.models.User
 import com.shayan.reminderstdl.data.repository.Repository
+import com.shayan.reminderstdl.reminder.AlarmManagerHelper
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -211,6 +212,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
                     )
                     val roomResult = repository.saveTasksToRoom(updatedTask)
                     taskCreationStatus.postValue(roomResult.isSuccess)
+                    AlarmManagerHelper.scheduleTaskReminder(getApplication(), updatedTask)
                 }, onFailure = {
                     taskCreationStatus.postValue(false)
                 })

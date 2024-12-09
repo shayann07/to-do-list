@@ -2,6 +2,7 @@ package com.shayan.reminderstdl.ui.fragments
 
 import android.app.TimePickerDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -127,6 +128,7 @@ class NewReminderFragment : Fragment() {
 
         TimePickerDialog(
             requireContext(), { _, selectedHour, selectedMinute ->
+                Log.d("TimePicker", "Selected Hour in 24-hour format: $hour")
                 selectedTime = String.format("%02d:%02d", selectedHour, selectedMinute)
                 binding.timeDisplay.text = selectedTime
 
