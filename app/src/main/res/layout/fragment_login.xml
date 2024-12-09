@@ -96,7 +96,7 @@
                 android:hint="@string/email"
                 android:inputType="textEmailAddress"
                 android:padding="12dp"
-                android:textColor="#B3B2B8"
+                android:textColor="@color/white"
                 android:textColorHint="#A9A9A9"
                 android:textSize="16sp" />
 
@@ -112,7 +112,7 @@
                 android:hint="@string/password"
                 android:inputType="textVisiblePassword"
                 android:padding="12dp"
-                android:textColor="#B3B2B8"
+                android:textColor="@color/white"
                 android:textColorHint="#B3B2B8"
                 android:textSize="16sp" />
 

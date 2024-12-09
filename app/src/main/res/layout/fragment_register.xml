@@ -105,7 +105,7 @@
                 android:hint="@string/first_name"
                 android:inputType="textPersonName"
                 android:padding="12dp"
-                android:textColor="#B3B2B8"
+                android:textColor="@color/white"
                 android:textColorHint="#A9A9A9"
                 android:textSize="16sp" />
 
@@ -119,7 +119,7 @@
                 android:hint="@string/last_name"
                 android:inputType="textPersonName"
                 android:padding="12dp"
-                android:textColor="#B3B2B8"
+                android:textColor="@color/white"
                 android:textColorHint="#A9A9A9"
                 android:textSize="16sp" />
 
@@ -134,7 +134,7 @@
                 android:hint="@string/email"
                 android:inputType="textEmailAddress"
                 android:padding="12dp"
-                android:textColor="#B3B2B8"
+                android:textColor="@color/white"
                 android:textColorHint="#A9A9A9"
                 android:textSize="16sp" />
 
@@ -151,7 +151,7 @@
                 android:inputType="textVisiblePassword"
                 android:padding="12dp"
                 android:textColor="#B3B2B8"
-                android:textColorHint="#B3B2B8"
+                android:textColorHint="@color/white"
                 android:textSize="16sp" />
 
 
@@ -167,7 +167,7 @@
                 android:hint="@string/confirm_password"
                 android:inputType="textVisiblePassword"
                 android:padding="12dp"
-                android:textColor="#B3B2B8"
+                android:textColor="@color/white"
                 android:textColorHint="#B3B2B8"
                 android:textSize="16sp" />
 
