@@ -34,7 +34,7 @@ class iCloudFragment : Fragment(), TaskAdapter.TaskCompletionListener,
         super.onViewCreated(view, savedInstanceState)
 
         binding.backToHomeBtn.setOnClickListener {
-            findNavController().navigate(R.id.iCloudFragment_to_homeFragment)
+            requireActivity().onBackPressed()
         }
         binding.icloudRecycler.layoutManager = LinearLayoutManager(requireContext())
         iCloudAdapter = TaskAdapter(this, this)

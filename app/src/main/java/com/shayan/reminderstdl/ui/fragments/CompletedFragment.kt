@@ -34,7 +34,7 @@ class CompletedFragment : Fragment(), TaskAdapter.TaskCompletionListener,
         super.onViewCreated(view, savedInstanceState)
 
         binding.backToHomeBtn.setOnClickListener {
-            findNavController().navigate(R.id.completedFragment_to_homeFragment)
+            requireActivity().onBackPressed()
         }
 
         binding.completedRecycler.layoutManager = LinearLayoutManager(requireContext())

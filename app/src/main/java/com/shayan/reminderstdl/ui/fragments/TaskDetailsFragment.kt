@@ -25,6 +25,10 @@ class TaskDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.backToHomeBtn.setOnClickListener {
+            requireActivity().onBackPressed()
+        }
+
         val task = arguments?.getParcelable<Tasks>("task")
 
         if (task != null) {

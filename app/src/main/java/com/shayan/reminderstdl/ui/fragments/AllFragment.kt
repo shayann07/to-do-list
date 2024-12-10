@@ -35,7 +35,7 @@ class AllFragment : Fragment(), TaskAdapter.TaskCompletionListener,
         super.onViewCreated(view, savedInstanceState)
 
         binding.backToHomeBtn.setOnClickListener {
-            findNavController().navigate(R.id.allFragment_to_homeFragment)
+            requireActivity().onBackPressed()
         }
 
         // Setup RecyclerView
