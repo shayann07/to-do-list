@@ -25,6 +25,9 @@ class Repository(context: Context) {
 
 //    ROOM OPERATIONS
 
+    suspend fun getTasksByTitle(title: String): List<Tasks> =
+        withContext(Dispatchers.IO) { taskDao.getTasksByTitle(title) }
+
     // Save Task to Room
     suspend fun saveTasksToRoom(task: Tasks): Result<Boolean> = withContext(Dispatchers.IO) {
         try {

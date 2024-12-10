@@ -82,6 +82,18 @@
 
             </FrameLayout>
 
+            <!-- RecyclerView added below SearchView -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:padding="16dp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/search_view_container" />
+
             <GridLayout
                 android:id="@+id/grid_layout"
                 android:layout_width="match_parent"
@@ -366,6 +378,7 @@
             </GridLayout>
 
             <LinearLayout
+                android:id="@+id/homeComponent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"

@@ -14,6 +14,7 @@ import com.shayan.reminderstdl.ui.viewmodel.ViewModel
 
 class TaskDetailsFragment : Fragment() {
 
+    // View binding for accessing layout elements
     private var _binding: FragmentTaskDetailsBinding? = null
     private val binding get() = _binding!!
 
@@ -28,36 +29,53 @@ class TaskDetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initializeViewModel()
+        setupBackButton()
+        displayTaskDetails()
+    }
 
+    // Initialize the ViewModel instance
+    private fun initializeViewModel() {
         viewModel = ViewModelProvider(requireActivity())[ViewModel::class.java]
+    }
 
+    // Set up the back button's functionality
+    private fun setupBackButton() {
         binding.backToHomeBtn.setOnClickListener {
-            requireActivity().onBackPressed()
+            requireActivity().onBackPressedDispatcher.onBackPressed()
         }
+    }
 
+    // Display task details in the UI
+    private fun displayTaskDetails() {
         val task = arguments?.getParcelable<Tasks>("task")
 
         if (task != null) {
+            // Display task title
             binding.tvTitle.text = task.title
-            if (!task.notes.isNullOrBlank()) {
-                binding.tvNotes.text = task.notes
-                binding.tvNotes.setTextColor(
+
+            // Display task notes with appropriate styling
+            binding.tvNotes.apply {
+                text = task.notes.takeIf { !it.isNullOrBlank() }
+                    ?: getString(R.string.notes_not_available)
+                setTextColor(
                     ContextCompat.getColor(
-                        binding.root.context, R.color.grey
-                    )
-                )
-            } else {
-                binding.tvNotes.text = binding.root.context.getString(R.string.notes_not_available)
-                binding.tvNotes.setTextColor(
-                    ContextCompat.getColor(
-                        binding.root.context, R.color.darker_gray
+                        context,
+                        if (task.notes.isNullOrBlank()) R.color.darker_gray else R.color.grey
                     )
                 )
             }
+
+            // Display task date, time, flag, and completion status
             binding.tvDate.text = task.date ?: "Not available"
             binding.tvTime.text = task.time ?: "Not available"
             binding.tvFlag.text = if (task.flag) "Yes" else "No"
             binding.tvCompleted.text = if (task.isCompleted) "Yes" else "No"
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null // Avoid memory leaks by clearing the binding
     }
 }
