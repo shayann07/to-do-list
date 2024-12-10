@@ -6,14 +6,18 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.shayan.reminderstdl.R
 import com.shayan.reminderstdl.data.models.Tasks
 import com.shayan.reminderstdl.databinding.FragmentTaskDetailsBinding
+import com.shayan.reminderstdl.ui.viewmodel.ViewModel
 
 class TaskDetailsFragment : Fragment() {
 
     private var _binding: FragmentTaskDetailsBinding? = null
     private val binding get() = _binding!!
+
+    private lateinit var viewModel: ViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -24,6 +28,8 @@ class TaskDetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewModel = ViewModelProvider(requireActivity())[ViewModel::class.java]
 
         binding.backToHomeBtn.setOnClickListener {
             requireActivity().onBackPressed()
@@ -37,7 +43,7 @@ class TaskDetailsFragment : Fragment() {
                 binding.tvNotes.text = task.notes
                 binding.tvNotes.setTextColor(
                     ContextCompat.getColor(
-                        binding.root.context, R.color.darker_gray
+                        binding.root.context, R.color.grey
                     )
                 )
             } else {

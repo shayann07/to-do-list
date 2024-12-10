@@ -40,7 +40,7 @@ class AllFragment : Fragment(), TaskAdapter.TaskCompletionListener,
 
         // Setup RecyclerView
         binding.allRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        allAdapter = TaskAdapter(this, this)
+        allAdapter = createTaskAdapter()
         binding.allRecyclerView.adapter = allAdapter
 
         // ViewModel initialization and observers
@@ -61,6 +61,20 @@ class AllFragment : Fragment(), TaskAdapter.TaskCompletionListener,
                 Toast.LENGTH_SHORT
             ).show()
         }
+    }
+
+    private fun createTaskAdapter(): TaskAdapter {
+        return TaskAdapter(
+            completionListener = this,
+            itemClickListener = this,
+            deleteClickListener = object : TaskAdapter.OnDeleteClickListener {
+                override fun onDeleteClick(task: Tasks) {
+                    // Handle task deletion
+                    viewModel.deleteTask(task.firebaseTaskId)
+                    Toast.makeText(requireContext(), "Task deleted", Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
     }
 
     override fun onItemClick(task: Tasks) {

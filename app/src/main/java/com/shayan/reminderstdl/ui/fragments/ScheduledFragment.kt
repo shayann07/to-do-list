@@ -61,8 +61,18 @@ class ScheduledFragment : Fragment(), TaskAdapter.TaskCompletionListener,
         val currentYear = calendar.get(Calendar.YEAR)
 
         val months = listOf(
-            "January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December"
         )
 
         for (i in 0 until 12) {
@@ -80,13 +90,23 @@ class ScheduledFragment : Fragment(), TaskAdapter.TaskCompletionListener,
     private fun initRecyclerViewsAndAdapters() {
         recyclerViews.addAll(
             listOf(
-                binding.rv1, binding.rv2, binding.rv3, binding.rv4, binding.rv5, binding.rv6,
-                binding.rv7, binding.rv8, binding.rv9, binding.rv10, binding.rv11, binding.rv12
+                binding.rv1,
+                binding.rv2,
+                binding.rv3,
+                binding.rv4,
+                binding.rv5,
+                binding.rv6,
+                binding.rv7,
+                binding.rv8,
+                binding.rv9,
+                binding.rv10,
+                binding.rv11,
+                binding.rv12
             )
         )
 
         recyclerViews.forEachIndexed { _, recyclerView ->
-            val adapter = TaskAdapter(this, this)
+            val adapter = createTaskAdapter()
             recyclerView.apply {
                 layoutManager = LinearLayoutManager(context)
                 this.adapter = adapter
@@ -95,11 +115,41 @@ class ScheduledFragment : Fragment(), TaskAdapter.TaskCompletionListener,
         }
     }
 
+    private fun createTaskAdapter(): TaskAdapter {
+        return TaskAdapter(completionListener = this,
+            itemClickListener = object : TaskAdapter.OnItemClickListener {
+                override fun onItemClick(task: Tasks) {
+                    // Navigate to TaskDetailsFragment
+                    val bundle = Bundle().apply {
+                        putParcelable("task", task) // Pass the task object
+                    }
+                    findNavController().navigate(R.id.taskDetailsFragment, bundle)
+                }
+            },
+            deleteClickListener = object : TaskAdapter.OnDeleteClickListener {
+                override fun onDeleteClick(task: Tasks) {
+                    // Handle task deletion
+                    viewModel.deleteTask(task.firebaseTaskId)
+                    Toast.makeText(requireContext(), "Task deleted", Toast.LENGTH_SHORT).show()
+                }
+            })
+    }
+
     private fun updateRecyclerViews(tasksByMonth: Map<String, List<Tasks>>) {
         val calendar = Calendar.getInstance()
         val months = listOf(
-            "January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December"
         )
 
         val monthsWithYears = (0 until 12).map {

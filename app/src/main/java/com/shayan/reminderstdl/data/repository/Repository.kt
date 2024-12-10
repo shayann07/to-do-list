@@ -97,12 +97,15 @@ class Repository(context: Context) {
         taskDao.updateTask(task)
     }
 
+    // Delete task by ID
+    suspend fun deleteTaskFromRoom(firebaseTaskId: String) =
+        withContext(Dispatchers.IO) { taskDao.deleteTaskByFirebaseTaskId(firebaseTaskId) }
+
     // Clear Completed Tasks Locally
     suspend fun clearAllCompletedTasks() =
         withContext(Dispatchers.IO) { taskDao.clearAllCompletedTasks() }
 
-    suspend fun clearAllTasks() =
-        withContext(Dispatchers.IO) { taskDao.clearAllTasks() }
+    suspend fun clearAllTasks() = withContext(Dispatchers.IO) { taskDao.clearAllTasks() }
 
     //  Save User Locally
     private suspend fun saveUserLocally(user: User) {
@@ -186,6 +189,24 @@ class Repository(context: Context) {
             Log.e(
                 "Repository", "Failed to update task completion in Firebase: ${e.localizedMessage}"
             )
+            Result.failure(e)
+        }
+    }
+
+    suspend fun deleteTaskFromFirebaseAndRoom(firebaseTaskId: String): Result<Boolean> {
+        return try {
+            val uid = auth.currentUser?.uid ?: throw Exception("User not logged in")
+
+            // Delete from Firebase
+            database.collection("Users").document(uid).collection("Tasks").document(firebaseTaskId)
+                .delete().await()
+
+            // Delete from Room
+            deleteTaskFromRoom(firebaseTaskId)
+
+            Result.success(true)
+        } catch (e: Exception) {
+            Log.e("Repository", "Failed to delete task: ${e.localizedMessage}")
             Result.failure(e)
         }
     }

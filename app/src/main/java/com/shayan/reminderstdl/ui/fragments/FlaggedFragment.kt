@@ -38,7 +38,7 @@ class FlaggedFragment : Fragment(), TaskAdapter.TaskCompletionListener,
         }
 
         binding.flaggedRecycler.layoutManager = LinearLayoutManager(requireContext())
-        flaggedAdapter = TaskAdapter(this, this)
+        flaggedAdapter = createTaskAdapter()
         binding.flaggedRecycler.adapter = flaggedAdapter
 
         viewModel = ViewModelProvider(requireActivity())[ViewModel::class.java]
@@ -49,6 +49,21 @@ class FlaggedFragment : Fragment(), TaskAdapter.TaskCompletionListener,
                 if (flaggedTasks.isNullOrEmpty()) View.GONE else View.VISIBLE
         }
     }
+
+    private fun createTaskAdapter(): TaskAdapter {
+        return TaskAdapter(
+            completionListener = this,
+            itemClickListener = this,
+            deleteClickListener = object : TaskAdapter.OnDeleteClickListener {
+                override fun onDeleteClick(task: Tasks) {
+                    // Handle task deletion
+                    viewModel.deleteTask(task.firebaseTaskId)
+                    Toast.makeText(requireContext(), "Task deleted", Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
+    }
+
 
     override fun onTaskCompletionToggled(
         firebaseTaskId: String, isCompleted: Boolean
