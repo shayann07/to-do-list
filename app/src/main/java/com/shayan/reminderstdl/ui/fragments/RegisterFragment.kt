@@ -35,7 +35,7 @@ class RegisterFragment : Fragment() {
         }
 
         binding.loginScreen.setOnClickListener {
-            findNavController().navigate(R.id.registerFragment_to_loginFragment)
+            requireActivity().onBackPressed()
         }
 
         binding.signupButton.setOnClickListener {

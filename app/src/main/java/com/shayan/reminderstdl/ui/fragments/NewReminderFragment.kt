@@ -53,7 +53,7 @@ class NewReminderFragment : Fragment() {
             return
         }
 
-        binding.cancelButton.setOnClickListener { navigateToHome() }
+        binding.cancelButton.setOnClickListener { requireActivity().onBackPressed() }
         binding.addTaskButton.setOnClickListener {
             handleAddTask()
         }

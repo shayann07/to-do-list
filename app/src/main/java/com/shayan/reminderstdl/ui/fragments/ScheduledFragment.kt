@@ -40,7 +40,7 @@ class ScheduledFragment : Fragment(), TaskAdapter.TaskCompletionListener,
         super.onViewCreated(view, savedInstanceState)
 
         binding.backToHomeBtn.setOnClickListener {
-            findNavController().navigate(R.id.scheduledFragment_to_homeFragment)
+            requireActivity().onBackPressed()
         }
 
         setupMonthHeaders()

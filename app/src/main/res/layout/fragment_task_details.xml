@@ -38,7 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/details_text"
         android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="24dp"
         android:background="@drawable/textview_roundedcorners"
         android:orientation="vertical">
 

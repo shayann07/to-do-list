@@ -24,7 +24,7 @@ class OutlookFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.backToHomeBtn.setOnClickListener {
-            findNavController().navigate(R.id.outlookFragment_to_homeFragment)
+            requireActivity().onBackPressed()
         }
     }
 }
