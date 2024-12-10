@@ -45,6 +45,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
 
     // Task lists
     val tasksList = MutableLiveData<List<Tasks>?>()
+    val searchQueryResult = MutableLiveData<List<Tasks>>()
     val taskCreationStatus = MutableLiveData<Boolean>()
     val morningTasksLiveData = MutableLiveData<List<Tasks>>()
     val afternoonTasksLiveData = MutableLiveData<List<Tasks>>()
@@ -55,6 +56,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
     val completedTasks = MutableLiveData<List<Tasks>>()
     val totalTasks = MutableLiveData<List<Tasks>>()
     val taskDeletionStatus = MutableLiveData<Boolean>()
+    private var currentSearchQuery: String = ""
 
     // Fetch tasks from Firebase and save them to Room
     fun fetchTasks(uid: String) {
@@ -75,6 +77,18 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun fetchTasksByTitle(title: String) {
+        currentSearchQuery = title
+        viewModelScope.launch {
+            try {
+                val tasks = repository.getTasksByTitle(title)
+                searchQueryResult.postValue(tasks)
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Failed to fetch tasks: ${e.message}")
+            }
+        }
+    }
+
     // Fetch today's tasks and categorize them
     fun fetchTodayTasks() {
         val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
@@ -87,7 +101,9 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
 
                 tasksList.postValue(incompleteTasksForToday)
 
-                val (morning, afternoon, tonight) = categorizeTasksByTime(incompleteTasksForToday)
+                val (morning, afternoon, tonight) = categorizeTasksByTime(
+                    incompleteTasksForToday
+                )
                 morningTasksLiveData.postValue(morning)
                 afternoonTasksLiveData.postValue(afternoon)
                 tonightTasksLiveData.postValue(tonight)
@@ -117,12 +133,16 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
                 // Group tasks by "MMMM yyyy" for the next 12 months
                 val groupedTasks = tasks.groupBy { task ->
                     SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(
-                        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(task.date ?: "")!!
+                        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(
+                            task.date ?: ""
+                        )!!
                     )
                 }
                 tasksByMonth.postValue(groupedTasks)
             } catch (e: Exception) {
-                Log.e("ViewModel", "Failed to fetch tasks for the next 12 months: ${e.message}")
+                Log.e(
+                    "ViewModel", "Failed to fetch tasks for the next 12 months: ${e.message}"
+                )
             }
         }
     }
@@ -256,7 +276,9 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
                 }, onFailure = { exception ->
                     // Post failure status
                     taskDeletionStatus.postValue(false)
-                    Log.e("ViewModel", "Failed to delete completed tasks: ${exception.message}")
+                    Log.e(
+                        "ViewModel", "Failed to delete completed tasks: ${exception.message}"
+                    )
                 })
             } catch (e: Exception) {
                 // Handle any unexpected errors
@@ -271,18 +293,29 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val result = repository.deleteTaskFromFirebaseAndRoom(firebaseTaskId)
                 if (result.isSuccess) {
+                    // Refresh all necessary task lists and counts
                     fetchTodayTasks()
                     fetchScheduledTasks()
                     fetchIncompleteTasks()
                     fetchFlaggedTasks()
                     fetchTotalTasks()
                     fetchCompletedTasks()
+
+                    // Refresh search results using the current search query
+                    if (currentSearchQuery.isNotEmpty()) {
+                        fetchTasksByTitle(currentSearchQuery)
+                    }
+                } else {
+                    Log.e(
+                        "ViewModel", "Delete operation failed: ${result.exceptionOrNull()?.message}"
+                    )
                 }
             } catch (e: Exception) {
                 Log.e("ViewModel", "Failed to delete task: ${e.message}")
             }
         }
     }
+
 
     fun undoDeleteTask(task: Tasks) {
         viewModelScope.launch {

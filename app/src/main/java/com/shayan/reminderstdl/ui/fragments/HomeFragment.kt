@@ -4,25 +4,36 @@ import android.os.Bundle
 import android.view.*
 import android.widget.LinearLayout
 import android.widget.PopupMenu
+import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.shayan.reminderstdl.R
+import com.shayan.reminderstdl.adapters.TaskAdapter
+import com.shayan.reminderstdl.data.models.Tasks
 import com.shayan.reminderstdl.databinding.FragmentHomeBinding
 import com.shayan.reminderstdl.ui.viewmodel.ViewModel
 import kotlin.reflect.KMutableProperty0
 
 class HomeFragment : Fragment() {
 
+    // View Binding
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
+    // ViewModel and Firebase
     private lateinit var viewModel: ViewModel
     private lateinit var firebaseAuth: FirebaseAuth
 
+    // Adapter and Task Data
+    private lateinit var taskAdapter: TaskAdapter
+
+    // State for container visibility
     private var isArrowDownICloud = true
     private var isArrowDownOutlook = true
 
@@ -38,9 +49,11 @@ class HomeFragment : Fragment() {
 
         setupFirebaseAuth()
         initializeViewModel()
-        fetchUserTasks()
-        observeTaskCounts()
+        setupRecyclerView()
+        setupSearchView()
+        setupObservers()
         setupClickListeners()
+        fetchUserTasks()
     }
 
     private fun setupFirebaseAuth() {
@@ -51,39 +64,119 @@ class HomeFragment : Fragment() {
         viewModel = ViewModelProvider(requireActivity())[ViewModel::class.java]
     }
 
-    private fun fetchUserTasks() {
-        val userId = firebaseAuth.currentUser?.uid
-        if (userId != null) {
-            viewModel.fetchTasks(userId)
-        } else {
-            Toast.makeText(requireContext(), "No tasks to fetch", Toast.LENGTH_SHORT).show()
+    private fun setupRecyclerView() {
+        taskAdapter = TaskAdapter(completionListener = object : TaskAdapter.TaskCompletionListener {
+            override fun onTaskCompletionToggled(firebaseTaskId: String, isCompleted: Boolean) {
+                viewModel.toggleTaskCompletion(
+                    firebaseTaskId, isCompleted
+                ) { success, message ->
+                    Toast.makeText(
+                        requireContext(),
+                        if (success) "Task updated" else "Failed to update: $message",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    val currentQuery = binding.searchView.query.toString()
+                    if (currentQuery.isNotEmpty()) {
+                        viewModel.fetchTasksByTitle(currentQuery) // Update the UI
+                    }
+                }
+            }
+        }, deleteClickListener = object : TaskAdapter.OnDeleteClickListener {
+            override fun onDeleteClick(task: Tasks) {
+                viewModel.deleteTask(task.firebaseTaskId)
+                Toast.makeText(requireContext(), "Task deleted", Toast.LENGTH_SHORT).show()
+
+            }
+        }, itemClickListener = object : TaskAdapter.OnItemClickListener {
+            override fun onItemClick(task: Tasks) {
+                val bundle = Bundle().apply {
+                    putParcelable("task", task) // Pass the task object
+                }
+                findNavController().navigate(R.id.taskDetailsFragment, bundle)
+            }
+        })
+
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = taskAdapter
+            visibility = View.GONE
         }
     }
 
-    private fun observeTaskCounts() {
-        with(viewModel) {
-            todayTaskCount.observe(viewLifecycleOwner) { count ->
-                binding.todayCount.text = count.toString()
+
+    private fun setupSearchView() {
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
             }
-            scheduledTasksCount.observe(viewLifecycleOwner) { count ->
-                binding.scheduledCount.text = count.toString()
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if (newText.isNullOrEmpty()) {
+                    taskAdapter.submitList(emptyList()) // Clear the adapter
+                    binding.recyclerView.visibility = View.GONE // Hide RecyclerView
+                    binding.buttonContainer.visibility = View.VISIBLE // Show new_reminder_button
+                    binding.gridLayout.visibility = View.VISIBLE // Show grid_layout
+                    binding.homeComponent.visibility = View.VISIBLE // Show homeComponent2
+                } else {
+                    viewModel.fetchTasksByTitle(newText)
+                    binding.recyclerView.visibility = View.VISIBLE // Show RecyclerView
+                    binding.buttonContainer.visibility = View.GONE // Hide new_reminder_button
+                    binding.gridLayout.visibility = View.GONE // Hide grid_layout
+                    binding.homeComponent.visibility = View.GONE // Hide homeComponent2
+                }
+                return true
             }
-            flaggedTasksCount.observe(viewLifecycleOwner) { count ->
-                binding.flaggedCount.text = count.toString()
-            }
-            incompleteTasksCount.observe(viewLifecycleOwner) { count ->
-                binding.allCount.text = count.toString()
-                binding.outlookCount.text = count.toString()
-            }
-            totalTaskCount.observe(viewLifecycleOwner) { count ->
-                binding.iCloudCount.text = count.toString()
+        })
+
+        // Make RecyclerView visible when the search view container is clicked
+        binding.searchViewContainer.setOnClickListener {
+            binding.recyclerView.visibility = View.VISIBLE
+            binding.searchView.requestFocus() // Activate SearchView
+            binding.buttonContainer.visibility = View.GONE // Hide new_reminder_button
+            binding.gridLayout.visibility = View.GONE // Hide grid_layout
+            binding.homeComponent.visibility = View.GONE // Hide homeComponent2
+        }
+    }
+
+    private fun setupObservers() {
+        viewModel.searchQueryResult.observe(viewLifecycleOwner) { tasks ->
+            if (tasks.isNotEmpty()) {
+                binding.recyclerView.visibility = View.VISIBLE
+                taskAdapter.submitList(tasks)
+            } else {
+                binding.recyclerView.visibility = View.GONE
+                Toast.makeText(requireContext(), "No tasks found", Toast.LENGTH_SHORT).show()
             }
         }
+
+        with(viewModel) {
+            todayTaskCount.observe(viewLifecycleOwner) { updateTaskCount(binding.todayCount, it) }
+            scheduledTasksCount.observe(viewLifecycleOwner) {
+                updateTaskCount(
+                    binding.scheduledCount, it
+                )
+            }
+            flaggedTasksCount.observe(viewLifecycleOwner) {
+                updateTaskCount(
+                    binding.flaggedCount, it
+                )
+            }
+            incompleteTasksCount.observe(viewLifecycleOwner) {
+                updateTaskCount(
+                    binding.allCount, it
+                )
+            }
+            totalTaskCount.observe(viewLifecycleOwner) { updateTaskCount(binding.iCloudCount, it) }
+        }
+    }
+
+    private fun updateTaskCount(textView: TextView, count: Int) {
+        textView.text = count.toString()
     }
 
     private fun setupClickListeners() {
         with(binding) {
-            // Navigation to different fragments
+            // Navigation
             todayScreen.setOnClickListener { navigateTo(R.id.homeFragment_to_todayFragment) }
             scheduledScreen.setOnClickListener { navigateTo(R.id.homeFragment_to_scheduledFragment) }
             allScreen.setOnClickListener { navigateTo(R.id.homeFragment_to_allFragment) }
@@ -95,18 +188,20 @@ class HomeFragment : Fragment() {
             // Log-out menu
             menuImageView.setOnClickListener { showPopupMenu() }
 
-            // Toggling visibility of containers
+            // Toggle visibility
             textviewICloud.setOnClickListener {
-                toggleVisibility(iCloudContainer, ::isArrowDownICloud)
+                toggleVisibility(
+                    iCloudContainer, ::isArrowDownICloud
+                )
             }
             textviewOutlook.setOnClickListener {
-                toggleVisibility(outlookContainer, ::isArrowDownOutlook)
+                toggleVisibility(
+                    outlookContainer, ::isArrowDownOutlook
+                )
             }
 
-            // New Reminder button
-            newReminderButton.setOnClickListener {
-                navigateTo(R.id.homeFragment_to_newReminderFragment)
-            }
+            // Create new reminder
+            newReminderButton.setOnClickListener { navigateTo(R.id.homeFragment_to_newReminderFragment) }
         }
     }
 
@@ -125,10 +220,7 @@ class HomeFragment : Fragment() {
     private fun handleMenuItemClick(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.log_out -> {
-                firebaseAuth.signOut()
-                viewModel.clearAllTasks()
-                Snackbar.make(binding.root, "Successfully logged out", Snackbar.LENGTH_SHORT).show()
-                navigateTo(R.id.homeFragment_to_loginFragment)
+                performLogout()
                 true
             }
 
@@ -136,9 +228,25 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun performLogout() {
+        firebaseAuth.signOut()
+        viewModel.clearAllTasks()
+        Snackbar.make(binding.root, "Successfully logged out", Snackbar.LENGTH_SHORT).show()
+        navigateTo(R.id.homeFragment_to_loginFragment)
+    }
+
     private fun toggleVisibility(container: LinearLayout, arrowState: KMutableProperty0<Boolean>) {
         container.visibility = if (arrowState.get()) View.GONE else View.VISIBLE
         arrowState.set(!arrowState.get())
+    }
+
+    private fun fetchUserTasks() {
+        val userId = firebaseAuth.currentUser?.uid
+        if (userId != null) {
+            viewModel.fetchTasks(userId)
+        } else {
+            Toast.makeText(requireContext(), "No tasks to fetch", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onResume() {
@@ -153,7 +261,6 @@ class HomeFragment : Fragment() {
             fetchIncompleteTasks()
             fetchCompletedTasks()
             fetchFlaggedTasks()
-            fetchTotalTasks()
         }
     }
 

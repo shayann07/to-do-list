@@ -58,4 +58,21 @@
     <string name="abc">Scheduled</string>
     <string name="notes_not_available">Notes not available</string>
     <string name="time_not_available">Time not available</string>
+
+    <string-array name="months">
+        <item>January</item>
+        <item>February</item>
+        <item>March</item>
+        <item>April</item>
+        <item>May</item>
+        <item>June</item>
+        <item>July</item>
+        <item>August</item>
+        <item>September</item>
+        <item>October</item>
+        <item>November</item>
+        <item>December</item>
+    </string-array>
+
+
 </resources>
