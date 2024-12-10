@@ -68,8 +68,7 @@ class TodayFragment : Fragment(), TaskAdapter.TaskCompletionListener {
     }
 
     private fun createTaskAdapter(): TaskAdapter {
-        return TaskAdapter(
-            completionListener = this,
+        return TaskAdapter(completionListener = this,
             itemClickListener = object : TaskAdapter.OnItemClickListener {
                 override fun onItemClick(task: Tasks) {
                     // Navigate to TaskDetailsFragment
@@ -78,8 +77,14 @@ class TodayFragment : Fragment(), TaskAdapter.TaskCompletionListener {
                     }
                     findNavController().navigate(R.id.taskDetailsFragment, bundle)
                 }
-            }
-        )
+            },
+            deleteClickListener = object : TaskAdapter.OnDeleteClickListener {
+                override fun onDeleteClick(task: Tasks) {
+                    // Handle task deletion
+                    viewModel.deleteTask(task.firebaseTaskId)
+                    Toast.makeText(requireContext(), "Task deleted", Toast.LENGTH_SHORT).show()
+                }
+            })
     }
 
     private fun observeLiveData() {

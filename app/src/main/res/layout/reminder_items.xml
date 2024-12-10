@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="8dp"
-    android:background="@android:color/transparent"
+    android:background="@color/black"
     android:orientation="horizontal"
     android:padding="16dp">
 
@@ -12,6 +12,7 @@
         android:id="@+id/radio_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
         android:buttonTint="@color/darker_gray" />
 
     <!-- Container for task details -->
@@ -61,8 +62,18 @@
                 android:paddingHorizontal="2dp"
                 android:paddingVertical="4dp"
                 android:text="@string/_9_00_am"
-                android:textColor="@android:color/holo_red_light"
+                android:textColor="@color/light_blue"
                 android:textSize="14sp" />
         </LinearLayout>
     </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/delete_task"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_gravity="center_vertical"
+        android:background="@null"
+        android:contentDescription="Delete"
+        android:src="@drawable/icons8_delete" />
 </LinearLayout>

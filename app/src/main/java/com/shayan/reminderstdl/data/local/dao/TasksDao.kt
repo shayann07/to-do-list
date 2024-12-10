@@ -66,6 +66,9 @@ interface TasksDao {
     @Query("DELETE FROM tasks_table WHERE isCompleted = 1")
     suspend fun clearAllCompletedTasks()
 
+    @Query("DELETE FROM tasks_table WHERE firebaseTaskId = :firebaseTaskId")
+    suspend fun deleteTaskByFirebaseTaskId(firebaseTaskId: String)
+
     @Query("DELETE FROM tasks_table ")
     suspend fun clearAllTasks()
 }

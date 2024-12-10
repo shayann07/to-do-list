@@ -266,6 +266,37 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun deleteTask(firebaseTaskId: String) {
+        viewModelScope.launch {
+            try {
+                val result = repository.deleteTaskFromFirebaseAndRoom(firebaseTaskId)
+                if (result.isSuccess) {
+                    fetchTodayTasks()
+                    fetchScheduledTasks()
+                    fetchIncompleteTasks()
+                    fetchFlaggedTasks()
+                    fetchTotalTasks()
+                    fetchCompletedTasks()
+                }
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Failed to delete task: ${e.message}")
+            }
+        }
+    }
+
+    fun undoDeleteTask(task: Tasks) {
+        viewModelScope.launch {
+            try {
+                // Save the task back to Firebase and Room
+                repository.saveTaskToFirebase(task.firebaseTaskId, task)
+                repository.saveTasksToRoom(task)
+                fetchTodayTasks() // Refresh tasks after restoring
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Failed to restore task: ${e.message}")
+            }
+        }
+    }
+
     fun clearAllTasks() {
         viewModelScope.launch {
             repository.clearAllTasks()
@@ -288,10 +319,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
 
     // Register user
     fun register(
-        user: User,
-        password: String,
-        onSuccess: () -> Unit,
-        onError: (String) -> Unit
+        user: User, password: String, onSuccess: () -> Unit, onError: (String) -> Unit
     ) {
 
         viewModelScope.launch {

@@ -37,7 +37,7 @@ class iCloudFragment : Fragment(), TaskAdapter.TaskCompletionListener,
             requireActivity().onBackPressed()
         }
         binding.icloudRecycler.layoutManager = LinearLayoutManager(requireContext())
-        iCloudAdapter = TaskAdapter(this, this)
+        iCloudAdapter = createTaskAdapter()
         binding.icloudRecycler.adapter = iCloudAdapter
 
         viewModel = ViewModelProvider(requireActivity())[ViewModel::class.java]
@@ -48,6 +48,21 @@ class iCloudFragment : Fragment(), TaskAdapter.TaskCompletionListener,
                 if (completedTasks.isNullOrEmpty()) View.GONE else View.VISIBLE
         }
     }
+
+    private fun createTaskAdapter(): TaskAdapter {
+        return TaskAdapter(
+            completionListener = this,
+            itemClickListener = this,
+            deleteClickListener = object : TaskAdapter.OnDeleteClickListener {
+                override fun onDeleteClick(task: Tasks) {
+                    // Handle task deletion
+                    viewModel.deleteTask(task.firebaseTaskId)
+                    Toast.makeText(requireContext(), "Task deleted", Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
+    }
+
 
     override fun onTaskCompletionToggled(
         firebaseTaskId: String, isCompleted: Boolean

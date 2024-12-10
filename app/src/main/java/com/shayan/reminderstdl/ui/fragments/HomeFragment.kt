@@ -153,6 +153,7 @@ class HomeFragment : Fragment() {
             fetchIncompleteTasks()
             fetchCompletedTasks()
             fetchFlaggedTasks()
+            fetchTotalTasks()
         }
     }
 
