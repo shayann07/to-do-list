@@ -9,9 +9,9 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.firebase.auth.FirebaseAuth
 import com.shayan.reminderstdl.R
 import com.shayan.reminderstdl.adapters.TaskAdapter
+import com.shayan.reminderstdl.data.models.Tasks
 import com.shayan.reminderstdl.databinding.FragmentTodayBinding
 import com.shayan.reminderstdl.ui.viewmodel.ViewModel
 
@@ -40,24 +40,49 @@ class TodayFragment : Fragment(), TaskAdapter.TaskCompletionListener {
         }
 
         // Initialize RecyclerViews
-        binding.recyclerMorning.layoutManager = LinearLayoutManager(context)
-        binding.recyclerAfternoon.layoutManager = LinearLayoutManager(context)
-        binding.recyclerTonight.layoutManager = LinearLayoutManager(context)
-
-        // Initialize Adapters
-        morningAdapter = TaskAdapter(this)
-        afternoonAdapter = TaskAdapter(this)
-        tonightAdapter = TaskAdapter(this)
-
-        binding.recyclerMorning.adapter = morningAdapter
-        binding.recyclerAfternoon.adapter = afternoonAdapter
-        binding.recyclerTonight.adapter = tonightAdapter
+        setupRecyclerViews()
 
         // Initialize ViewModel
         viewModel = ViewModelProvider(requireActivity())[ViewModel::class.java]
 
+        // Observe LiveData
+        observeLiveData()
 
+        // Fetch today's tasks
+        viewModel.fetchTodayTasks()
+    }
 
+    private fun setupRecyclerViews() {
+        binding.recyclerMorning.layoutManager = LinearLayoutManager(context)
+        binding.recyclerAfternoon.layoutManager = LinearLayoutManager(context)
+        binding.recyclerTonight.layoutManager = LinearLayoutManager(context)
+
+        // Initialize Adapters with click listeners
+        morningAdapter = createTaskAdapter()
+        afternoonAdapter = createTaskAdapter()
+        tonightAdapter = createTaskAdapter()
+
+        binding.recyclerMorning.adapter = morningAdapter
+        binding.recyclerAfternoon.adapter = afternoonAdapter
+        binding.recyclerTonight.adapter = tonightAdapter
+    }
+
+    private fun createTaskAdapter(): TaskAdapter {
+        return TaskAdapter(
+            completionListener = this,
+            itemClickListener = object : TaskAdapter.OnItemClickListener {
+                override fun onItemClick(task: Tasks) {
+                    // Navigate to TaskDetailsFragment
+                    val bundle = Bundle().apply {
+                        putParcelable("task", task) // Pass the task object
+                    }
+                    findNavController().navigate(R.id.taskDetailsFragment, bundle)
+                }
+            }
+        )
+    }
+
+    private fun observeLiveData() {
         viewModel.morningTasksLiveData.observe(viewLifecycleOwner) { morningTasks ->
             morningAdapter.submitList(morningTasks)
             binding.recyclerMorning.visibility =
@@ -77,7 +102,6 @@ class TodayFragment : Fragment(), TaskAdapter.TaskCompletionListener {
         }
     }
 
-
     override fun onTaskCompletionToggled(firebaseTaskId: String, isCompleted: Boolean) {
         viewModel.toggleTaskCompletion(firebaseTaskId, isCompleted) { success, message ->
             Toast.makeText(
@@ -88,14 +112,8 @@ class TodayFragment : Fragment(), TaskAdapter.TaskCompletionListener {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.fetchTodayTasks()
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null // Clean up binding to avoid memory leaks
     }
 }
-

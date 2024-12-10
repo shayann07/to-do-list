@@ -11,10 +11,12 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.shayan.reminderstdl.R
 import com.shayan.reminderstdl.adapters.TaskAdapter
+import com.shayan.reminderstdl.data.models.Tasks
 import com.shayan.reminderstdl.databinding.FragmentICloudBinding
 import com.shayan.reminderstdl.ui.viewmodel.ViewModel
 
-class iCloudFragment : Fragment(), TaskAdapter.TaskCompletionListener {
+class iCloudFragment : Fragment(), TaskAdapter.TaskCompletionListener,
+    TaskAdapter.OnItemClickListener {
     private var _binding: FragmentICloudBinding? = null
     private val binding get() = _binding!!
 
@@ -35,7 +37,7 @@ class iCloudFragment : Fragment(), TaskAdapter.TaskCompletionListener {
             findNavController().navigate(R.id.iCloudFragment_to_homeFragment)
         }
         binding.icloudRecycler.layoutManager = LinearLayoutManager(requireContext())
-        iCloudAdapter = TaskAdapter(this)
+        iCloudAdapter = TaskAdapter(this, this)
         binding.icloudRecycler.adapter = iCloudAdapter
 
         viewModel = ViewModelProvider(requireActivity())[ViewModel::class.java]
@@ -57,6 +59,14 @@ class iCloudFragment : Fragment(), TaskAdapter.TaskCompletionListener {
                 Toast.LENGTH_SHORT
             ).show()
         }
+    }
+
+    override fun onItemClick(task: Tasks) {
+        // Navigate to Task Details Fragment
+        val bundle = Bundle().apply {
+            putParcelable("task", task)
+        }
+        findNavController().navigate(R.id.taskDetailsFragment, bundle)
     }
 
     override fun onDestroyView() {

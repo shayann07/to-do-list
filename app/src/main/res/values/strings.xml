@@ -56,4 +56,5 @@
     <string name="clear">•   Clear</string>
     <string name="scheduled">Scheduled</string>
     <string name="abc">Scheduled</string>
+    <string name="notes_not_available">Notes not available</string>
 </resources>

@@ -1,4 +1,4 @@
-package com.shayan.reminderstdl.reminder
+package com.shayan.reminderstdl.utils
 
 import android.app.NotificationChannel
 import android.app.NotificationManager

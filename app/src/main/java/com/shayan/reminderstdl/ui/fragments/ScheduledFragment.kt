@@ -18,7 +18,8 @@ import com.shayan.reminderstdl.data.models.Tasks
 import com.shayan.reminderstdl.databinding.FragmentScheduledBinding
 import com.shayan.reminderstdl.ui.viewmodel.ViewModel
 
-class ScheduledFragment : Fragment(), TaskAdapter.TaskCompletionListener {
+class ScheduledFragment : Fragment(), TaskAdapter.TaskCompletionListener,
+    TaskAdapter.OnItemClickListener {
 
     private var _binding: FragmentScheduledBinding? = null
     private val binding get() = _binding!!
@@ -47,7 +48,7 @@ class ScheduledFragment : Fragment(), TaskAdapter.TaskCompletionListener {
 
         viewModel = ViewModelProvider(requireActivity())[ViewModel::class.java]
 
-        viewModel.fetchScheduledTasks() // Ensure this method fetches tasks for the next 12 months
+        viewModel.fetchScheduledTasks()
 
         viewModel.tasksByMonth.observe(viewLifecycleOwner) { tasksByMonth ->
             updateRecyclerViews(tasksByMonth)
@@ -60,18 +61,8 @@ class ScheduledFragment : Fragment(), TaskAdapter.TaskCompletionListener {
         val currentYear = calendar.get(Calendar.YEAR)
 
         val months = listOf(
-            "January",
-            "February",
-            "March",
-            "April",
-            "May",
-            "June",
-            "July",
-            "August",
-            "September",
-            "October",
-            "November",
-            "December"
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
         )
 
         for (i in 0 until 12) {
@@ -89,23 +80,13 @@ class ScheduledFragment : Fragment(), TaskAdapter.TaskCompletionListener {
     private fun initRecyclerViewsAndAdapters() {
         recyclerViews.addAll(
             listOf(
-                binding.rv1,
-                binding.rv2,
-                binding.rv3,
-                binding.rv4,
-                binding.rv5,
-                binding.rv6,
-                binding.rv7,
-                binding.rv8,
-                binding.rv9,
-                binding.rv10,
-                binding.rv11,
-                binding.rv12
+                binding.rv1, binding.rv2, binding.rv3, binding.rv4, binding.rv5, binding.rv6,
+                binding.rv7, binding.rv8, binding.rv9, binding.rv10, binding.rv11, binding.rv12
             )
         )
 
-        recyclerViews.forEachIndexed { index, recyclerView ->
-            val adapter = TaskAdapter(this)
+        recyclerViews.forEachIndexed { _, recyclerView ->
+            val adapter = TaskAdapter(this, this)
             recyclerView.apply {
                 layoutManager = LinearLayoutManager(context)
                 this.adapter = adapter
@@ -117,18 +98,8 @@ class ScheduledFragment : Fragment(), TaskAdapter.TaskCompletionListener {
     private fun updateRecyclerViews(tasksByMonth: Map<String, List<Tasks>>) {
         val calendar = Calendar.getInstance()
         val months = listOf(
-            "January",
-            "February",
-            "March",
-            "April",
-            "May",
-            "June",
-            "July",
-            "August",
-            "September",
-            "October",
-            "November",
-            "December"
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
         )
 
         val monthsWithYears = (0 until 12).map {
@@ -147,9 +118,7 @@ class ScheduledFragment : Fragment(), TaskAdapter.TaskCompletionListener {
         }
     }
 
-    override fun onTaskCompletionToggled(
-        firebaseTaskId: String, isCompleted: Boolean
-    ) {
+    override fun onTaskCompletionToggled(firebaseTaskId: String, isCompleted: Boolean) {
         viewModel.toggleTaskCompletion(firebaseTaskId, isCompleted) { success, message ->
             Toast.makeText(
                 requireContext(),
@@ -157,6 +126,13 @@ class ScheduledFragment : Fragment(), TaskAdapter.TaskCompletionListener {
                 Toast.LENGTH_SHORT
             ).show()
         }
+    }
+
+    override fun onItemClick(task: Tasks) {
+        val bundle = Bundle().apply {
+            putParcelable("task", task)
+        }
+        findNavController().navigate(R.id.taskDetailsFragment, bundle)
     }
 
     override fun onDestroyView() {
