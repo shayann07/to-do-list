@@ -1,4 +1,4 @@
-package com.shayan.reminderstdl.reminder
+package com.shayan.reminderstdl.utils
 
 import android.app.AlarmManager
 import android.app.PendingIntent
@@ -8,6 +8,7 @@ import android.os.Build
 import android.provider.Settings
 import android.icu.util.Calendar
 import com.shayan.reminderstdl.data.models.Tasks
+import com.shayan.reminderstdl.receivers.TaskReminderReceiver
 import java.text.SimpleDateFormat
 import java.util.Locale
 

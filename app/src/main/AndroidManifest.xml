@@ -27,6 +27,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <receiver android:name="com.shayan.reminderstdl.reminder.TaskReminderReceiver" />
+        <receiver android:name="com.shayan.reminderstdl.receivers.TaskReminderReceiver" />
     </application>
 </manifest>

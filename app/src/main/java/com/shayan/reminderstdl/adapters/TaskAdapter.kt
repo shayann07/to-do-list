@@ -8,7 +8,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.shayan.reminderstdl.data.models.Tasks
 import com.shayan.reminderstdl.databinding.ReminderItemsBinding
 
-class TaskAdapter(private val listener: TaskCompletionListener) :
+class TaskAdapter(
+    private val completionListener: TaskCompletionListener,
+    private val itemClickListener: OnItemClickListener
+) :
     ListAdapter<Tasks, TaskAdapter.TaskViewHolder>(TaskDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
@@ -19,13 +22,17 @@ class TaskAdapter(private val listener: TaskCompletionListener) :
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
         val task = getItem(position)
-        holder.bind(task, listener)
+        holder.bind(task, completionListener, itemClickListener)
     }
 
     class TaskViewHolder(private val binding: ReminderItemsBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(task: Tasks, listener: TaskCompletionListener) {
+        fun bind(
+            task: Tasks,
+            completionListener: TaskCompletionListener,
+            itemClickListener: OnItemClickListener
+        ) {
             binding.fetchedTaskTitle.text = task.title
             binding.fetchedTaskTime.text = task.time ?: "Time not available"
             binding.radioButton.isChecked = task.isCompleted
@@ -35,7 +42,11 @@ class TaskAdapter(private val listener: TaskCompletionListener) :
 
             // Toggle completion state
             binding.radioButton.setOnCheckedChangeListener { _, isChecked ->
-                listener.onTaskCompletionToggled(task.firebaseTaskId, isChecked)
+                completionListener.onTaskCompletionToggled(task.firebaseTaskId, isChecked)
+            }
+
+            binding.root.setOnClickListener {
+                itemClickListener.onItemClick(task)
             }
         }
     }
@@ -52,5 +63,9 @@ class TaskAdapter(private val listener: TaskCompletionListener) :
 
     interface TaskCompletionListener {
         fun onTaskCompletionToggled(firebaseTaskId: String, isCompleted: Boolean)
+    }
+
+    interface OnItemClickListener {
+        fun onItemClick(task: Tasks)
     }
 }

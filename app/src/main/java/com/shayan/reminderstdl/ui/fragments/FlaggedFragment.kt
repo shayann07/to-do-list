@@ -11,10 +11,12 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.shayan.reminderstdl.R
 import com.shayan.reminderstdl.adapters.TaskAdapter
+import com.shayan.reminderstdl.data.models.Tasks
 import com.shayan.reminderstdl.databinding.FragmentFlaggedBinding
 import com.shayan.reminderstdl.ui.viewmodel.ViewModel
 
-class FlaggedFragment : Fragment(), TaskAdapter.TaskCompletionListener {
+class FlaggedFragment : Fragment(), TaskAdapter.TaskCompletionListener,
+    TaskAdapter.OnItemClickListener {
     private var _binding: FragmentFlaggedBinding? = null
     private val binding get() = _binding!!
 
@@ -36,7 +38,7 @@ class FlaggedFragment : Fragment(), TaskAdapter.TaskCompletionListener {
         }
 
         binding.flaggedRecycler.layoutManager = LinearLayoutManager(requireContext())
-        flaggedAdapter = TaskAdapter(this)
+        flaggedAdapter = TaskAdapter(this, this)
         binding.flaggedRecycler.adapter = flaggedAdapter
 
         viewModel = ViewModelProvider(requireActivity())[ViewModel::class.java]
@@ -58,6 +60,14 @@ class FlaggedFragment : Fragment(), TaskAdapter.TaskCompletionListener {
                 Toast.LENGTH_SHORT
             ).show()
         }
+    }
+
+    override fun onItemClick(task: Tasks) {
+        // Navigate to Task Details Fragment
+        val bundle = Bundle().apply {
+            putParcelable("task", task)
+        }
+        findNavController().navigate(R.id.taskDetailsFragment, bundle)
     }
 
     override fun onDestroyView() {
