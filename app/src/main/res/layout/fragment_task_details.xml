@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="9dp"
         android:background="@null"
         android:contentDescription="back"
         android:padding="8dp"
@@ -39,6 +39,7 @@
         android:layout_below="@+id/details_text"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="24dp"
+        android:animateLayoutChanges="true"
         android:background="@drawable/textview_roundedcorners"
         android:orientation="vertical">
 
@@ -80,6 +81,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:layout_marginHorizontal="16dp"
+        android:animateLayoutChanges="true"
         android:columnCount="2"
         android:orientation="horizontal"
         android:padding="8dp"
@@ -90,6 +92,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_columnWeight="1"
+            android:animateLayoutChanges="true"
             android:gravity="center"
             android:orientation="horizontal"
             android:padding="8dp">
@@ -129,6 +132,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_columnWeight="1"
+            android:animateLayoutChanges="true"
             android:gravity="center"
             android:orientation="horizontal"
             android:padding="8dp">
@@ -171,6 +175,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_columnWeight="1"
+            android:animateLayoutChanges="true"
             android:gravity="center"
             android:orientation="horizontal"
             android:padding="8dp">
@@ -212,6 +217,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_columnWeight="1"
+            android:animateLayoutChanges="true"
             android:gravity="center"
             android:orientation="horizontal"
             android:padding="8dp">

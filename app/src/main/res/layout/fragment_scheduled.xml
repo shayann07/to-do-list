@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
+        android:animateLayoutChanges="true"
         android:orientation="vertical">
 
         <TextView
@@ -21,20 +22,23 @@
             android:drawablePadding="6dp"
             android:fontFamily="@font/roboto_regular"
             android:padding="8dp"
+            android:gravity="center_vertical"
             android:text="@string/lists"
             android:textColor="@color/light_blue"
             android:textSize="16sp"
             android:textStyle="bold"
             app:drawableStartCompat="@drawable/arrow_left" />
 
-        <ScrollView
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:animateLayoutChanges="true"
             android:background="@color/black">
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:animateLayoutChanges="true">
 
                 <TextView
                     android:id="@+id/scheduled_text"
@@ -58,6 +62,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/view2"
+                    android:animateLayoutChanges="true"
                     android:orientation="vertical">
 
                     <TextView
@@ -67,6 +72,7 @@
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv1"
+                        android:nestedScrollingEnabled="false"
                         style="@style/RecyclerViewStyle" />
 
                     <View
@@ -80,6 +86,7 @@
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv2"
+                        android:nestedScrollingEnabled="false"
                         style="@style/RecyclerViewStyle" />
 
                     <View
@@ -93,6 +100,7 @@
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv3"
+                        android:nestedScrollingEnabled="false"
                         style="@style/RecyclerViewStyle" />
 
                     <View
@@ -106,6 +114,7 @@
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv4"
+                        android:nestedScrollingEnabled="false"
                         style="@style/RecyclerViewStyle" />
 
                     <View
@@ -119,6 +128,7 @@
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv5"
+                        android:nestedScrollingEnabled="false"
                         style="@style/RecyclerViewStyle" />
 
                     <View
@@ -132,6 +142,7 @@
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv6"
+                        android:nestedScrollingEnabled="false"
                         style="@style/RecyclerViewStyle" />
 
                     <View
@@ -145,6 +156,7 @@
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv7"
+                        android:nestedScrollingEnabled="false"
                         style="@style/RecyclerViewStyle" />
 
                     <View
@@ -158,6 +170,7 @@
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv8"
+                        android:nestedScrollingEnabled="false"
                         style="@style/RecyclerViewStyle" />
 
                     <View
@@ -171,6 +184,7 @@
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv9"
+                        android:nestedScrollingEnabled="false"
                         style="@style/RecyclerViewStyle" />
 
                     <View
@@ -184,6 +198,7 @@
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv10"
+                        android:nestedScrollingEnabled="false"
                         style="@style/RecyclerViewStyle" />
 
                     <View
@@ -197,6 +212,7 @@
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv11"
+                        android:nestedScrollingEnabled="false"
                         style="@style/RecyclerViewStyle" />
 
                     <View
@@ -210,6 +226,7 @@
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv12"
+                        android:nestedScrollingEnabled="false"
                         style="@style/RecyclerViewStyle" />
 
                     <View
@@ -217,6 +234,6 @@
                         style="@style/DividerStyle" />
                 </LinearLayout>
             </RelativeLayout>
-        </ScrollView>
+        </androidx.core.widget.NestedScrollView>
     </LinearLayout>
 </RelativeLayout>
