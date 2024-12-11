@@ -105,7 +105,7 @@ class HomeFragment : Fragment() {
 
 
     private fun setupSearchView() {
-        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        binding.searchView.setOnQueryTextListener(object : android.widget.SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
             }
@@ -117,12 +117,14 @@ class HomeFragment : Fragment() {
                     binding.buttonContainer.visibility = View.VISIBLE // Show new_reminder_button
                     binding.gridLayout.visibility = View.VISIBLE // Show grid_layout
                     binding.homeComponent.visibility = View.VISIBLE // Show homeComponent2
+                    binding.microphoneIcon.visibility = View.VISIBLE // Show microphone_icon
                 } else {
                     viewModel.fetchTasksByTitle(newText)
                     binding.recyclerView.visibility = View.VISIBLE // Show RecyclerView
                     binding.buttonContainer.visibility = View.GONE // Hide new_reminder_button
                     binding.gridLayout.visibility = View.GONE // Hide grid_layout
                     binding.homeComponent.visibility = View.GONE // Hide homeComponent2
+                    binding.microphoneIcon.visibility = View.GONE // Hide microphone_icon
                 }
                 return true
             }
@@ -135,6 +137,7 @@ class HomeFragment : Fragment() {
             binding.buttonContainer.visibility = View.GONE // Hide new_reminder_button
             binding.gridLayout.visibility = View.GONE // Hide grid_layout
             binding.homeComponent.visibility = View.GONE // Hide homeComponent2
+            binding.microphoneIcon.visibility = View.GONE // Hide microphone_icon
         }
     }
 

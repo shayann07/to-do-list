@@ -38,8 +38,8 @@
 
     <path
         android:fillColor="#FF9500"
-        android:strokeColor="@color/my_gray"
-        android:pathData="M76.93,33.57a4.9,4.9 0,1 0,6.93 -6.93a4.9,4.9 0,1 0,-6.93 6.93z" />
+        android:pathData="M76.93,33.57a4.9,4.9 0,1 0,6.93 -6.93a4.9,4.9 0,1 0,-6.93 6.93z"
+        android:strokeColor="@color/my_gray" />
 
     <path
         android:fillColor="@color/my_gray"
@@ -47,8 +47,8 @@
 
     <path
         android:fillColor="#1BADF8"
-        android:strokeColor="@color/my_gray"
-        android:pathData="M78.53,56.03a4.9,4.9 67.5,1 0,3.75 -9.05a4.9,4.9 67.5,1 0,-3.75 9.05z" />
+        android:pathData="M78.53,56.03a4.9,4.9 67.5,1 0,3.75 -9.05a4.9,4.9 67.5,1 0,-3.75 9.05z"
+        android:strokeColor="@color/my_gray" />
 
     <path
         android:fillColor="@color/my_gray"
@@ -60,7 +60,7 @@
 
     <path
         android:fillColor="#63DA38"
-        android:strokeColor="@color/my_gray"
-        android:pathData="M75.63,74.02a4.9,4.9 121.71,1 0,9.54 -2.25a4.9,4.9 121.71,1 0,-9.54 2.25z" />
+        android:pathData="M75.63,74.02a4.9,4.9 121.71,1 0,9.54 -2.25a4.9,4.9 121.71,1 0,-9.54 2.25z"
+        android:strokeColor="@color/my_gray" />
 
 </vector>

@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
+        android:animateLayoutChanges="true"
         android:orientation="vertical">
 
         <TextView
@@ -21,20 +22,23 @@
             android:drawablePadding="6dp"
             android:fontFamily="@font/roboto_regular"
             android:padding="8dp"
+            android:gravity="center_vertical"
             android:text="@string/lists"
             android:textColor="@color/light_blue"
             android:textSize="16sp"
             android:textStyle="bold"
             app:drawableStartCompat="@drawable/arrow_left" />
 
-        <ScrollView
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:animateLayoutChanges="true"
             android:background="@color/black">
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:animateLayoutChanges="true">
 
                 <TextView
                     android:id="@+id/today_text"
@@ -60,6 +64,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/view1"
+                    android:animateLayoutChanges="true"
                     android:orientation="vertical">
 
                     <!-- Morning Section -->
@@ -81,6 +86,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
+                        android:nestedScrollingEnabled="false"
                         android:visibility="gone" />
 
                     <View
@@ -107,6 +113,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
+                        android:nestedScrollingEnabled="false"
                         android:visibility="gone" />
 
                     <View
@@ -132,6 +139,7 @@
                         android:id="@+id/recycler_tonight"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
                         android:visibility="gone" />
 
                     <View
@@ -140,6 +148,6 @@
                         android:background="@color/my_gray" />
                 </LinearLayout>
             </RelativeLayout>
-        </ScrollView>
+        </androidx.core.widget.NestedScrollView>
     </LinearLayout>
 </RelativeLayout>
