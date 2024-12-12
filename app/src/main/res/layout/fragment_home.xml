@@ -395,7 +395,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="26dp"
                     android:fontFamily="@font/roboto_bold"
-                    android:text="Google Cloud"
+                    android:text="@string/icloud"
                     android:textColor="@color/white"
                     android:textSize="22sp"
                     android:textStyle="bold"
@@ -450,7 +450,7 @@
                     android:textColor="@color/white"
                     android:textSize="24sp"
                     android:textStyle="bold"
-                    android:visibility="gone"
+                    android:visibility="visible"
                     app:drawableEndCompat="@drawable/arrow_down" />
 
                 <LinearLayout
@@ -462,7 +462,7 @@
                     android:background="@drawable/textview_roundedcorners"
                     android:orientation="horizontal"
                     android:padding="2dp"
-                    android:visibility="gone">
+                    android:visibility="visible">
 
                     <TextView
                         android:layout_width="wrap_content"
